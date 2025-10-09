@@ -2,6 +2,12 @@
 
 <div align="center">
 
+![Demo](demo.gif)
+
+</div>
+
+<div align="center">
+
 ![Excel Automator Pro](https://img.shields.io/badge/Excel-Automator-blue?style=for-the-badge&logo=microsoft-excel)
 ![Python](https://img.shields.io/badge/Python-3.11+-green?style=for-the-badge&logo=python)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.50+-red?style=for-the-badge&logo=streamlit)
@@ -128,3 +134,4 @@ pip install -r requirements.txt
 
 # 3. Ejecutar aplicación
 streamlit run excel_automator.py
+
