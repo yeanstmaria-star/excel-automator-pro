@@ -60,23 +60,7 @@ if not can_use:
     """)
     
     st.stop()
-
-# ========================================
-# A PARTIR DE AQUÍ VA TU APP NORMAL
-# ========================================
-
-# Título de tu app
-st.title("📊 Excel Automator Pro")
-
-# Aquí va todo tu código existente...
-# ... resto de tu aplicación ...
-
-# ========================================
-# AL FINAL, incrementar contador de uso
-# ========================================
-# Cuando el usuario complete un análisis exitosamente:
-if st.session_state.user_tier == 'free':
-    auth.increment_usage()
+    
 warnings.filterwarnings('ignore')
 
 # =====================================================================
@@ -391,6 +375,11 @@ def main():
                 st.markdown("</div>", unsafe_allow_html=True)
             
             st.success(f"✅ Archivo procesado: **{uploaded_file.name}**")
+
+            # Después de procesar el archivo exitosamente
+            if st.session_state.user_tier == 'free':
+            auth.increment_usage()
+            st.success(f"✅ Análisis completado! ({st.session_state.daily_uses}/3 usados hoy)")
             
             # TABS
             tab1, tab2, tab3, tab4 = st.tabs([
@@ -830,4 +819,5 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
