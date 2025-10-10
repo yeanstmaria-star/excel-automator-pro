@@ -18,15 +18,13 @@ import numpy as np
 from datetime import datetime
 from scipy import stats
 import warnings
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-# ... tus otros imports ...
 
 # ========================================
 # IMPORTAR SISTEMA DE AUTENTICACIÓN
 # ========================================
 import auth
+
+warnings.filterwarnings('ignore')
 
 # ========================================
 # VERIFICAR AUTENTICACIÓN
@@ -60,8 +58,6 @@ if not can_use:
     """)
     
     st.stop()
-    
-warnings.filterwarnings('ignore')
 
 # =====================================================================
 # CONFIGURACIÓN
@@ -376,10 +372,12 @@ def main():
             
             st.success(f"✅ Archivo procesado: **{uploaded_file.name}**")
 
-            # Después de procesar el archivo exitosamente
+            # ========================================
+            # INCREMENTAR USO (SOLO PARA USUARIOS FREE)
+            # ========================================
             if st.session_state.user_tier == 'free':
-            auth.increment_usage()
-            st.success(f"✅ Análisis completado! ({st.session_state.daily_uses}/3 usados hoy)")
+                auth.increment_usage()
+                st.success(f"✅ Análisis completado! ({st.session_state.daily_uses}/3 usados hoy)")
             
             # TABS
             tab1, tab2, tab3, tab4 = st.tabs([
@@ -817,7 +815,4 @@ def main():
     """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
-
     main()
-
-
