@@ -204,7 +204,7 @@ def show_auth_screen():
             
             # Botón de compra - AQUÍ pondrás tu link de Gumroad
             st.markdown("""
-            <a href="https://gumroad.com/l/TUPRODUCTO" target="_blank">
+            <a href="https://smartappslab.gumroad.com/l/owmzol" target="_blank">
                 <button style="
                     background-color: #ffa500;
                     color: white;
