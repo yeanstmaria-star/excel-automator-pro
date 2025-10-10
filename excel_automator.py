@@ -8,52 +8,6 @@ pip install streamlit pandas plotly openpyxl xlsxwriter scipy scikit-learn
 EJECUTAR:
 streamlit run excel_automator.py
 """
-# Agregar al inicio de excel_automator.py
-import streamlit as st
-
-# Sistema simple de usuarios
-def check_auth():
-    if 'authenticated' not in st.session_state:
-        st.session_state.authenticated = False
-    
-    if not st.session_state.authenticated:
-        st.title("🔐 Excel Automator Pro")
-        
-        tab1, tab2 = st.tabs(["🆓 Versión Gratuita", "💎 Premium"])
-        
-        with tab1:
-            st.info("Prueba gratis: 3 análisis por día")
-            if st.button("Probar Gratis"):
-                st.session_state.authenticated = True
-                st.session_state.user_type = 'free'
-                st.rerun()
-        
-        with tab2:
-            st.success("Análisis ilimitados + Todas las funciones")
-            st.markdown("[🚀 Comprar Premium - $19.99/mes](TU_LINK_GUMROAD)")
-            
-            code = st.text_input("¿Ya tienes código Premium?")
-            if st.button("Activar"):
-                if code == "PREMIUM2024":  # Tu código de prueba
-                    st.session_state.authenticated = True
-                    st.session_state.user_type = 'premium'
-                    st.rerun()
-        return False
-    return True
-
-# Al inicio de tu app
-if not check_auth():
-    st.stop()
-
-# Límites para usuarios gratis
-if st.session_state.user_type == 'free':
-    if 'daily_uses' not in st.session_state:
-        st.session_state.daily_uses = 0
-    
-    if st.session_state.daily_uses >= 3:
-        st.error("🔒 Límite diario alcanzado (3/3)")
-        st.markdown("[💳 Actualizar a Premium](TU_LINK)")
-        st.stop()
 
 import streamlit as st
 import pandas as pd
@@ -64,6 +18,65 @@ import numpy as np
 from datetime import datetime
 from scipy import stats
 import warnings
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+# ... tus otros imports ...
+
+# ========================================
+# IMPORTAR SISTEMA DE AUTENTICACIÓN
+# ========================================
+import auth
+
+# ========================================
+# VERIFICAR AUTENTICACIÓN
+# ========================================
+if not auth.require_auth():
+    st.stop()  # Detiene la ejecución si no está autenticado
+
+# ========================================
+# VERIFICAR LÍMITES DE USO
+# ========================================
+can_use, error_message = auth.check_usage_limit()
+
+if not can_use:
+    st.error(f"🔒 {error_message}")
+    st.info("💡 **Actualiza a Premium** para análisis ilimitados")
+    
+    st.markdown("""
+    ### ¿Por qué Premium?
+    
+    ✅ **Análisis ilimitados** - Sin restricciones diarias
+    
+    ✅ **Archivos más grandes** - Hasta 50 MB
+    
+    ✅ **Funciones avanzadas** - Todos los tipos de gráficos
+    
+    ✅ **Exportar PDF** - Guarda tus reportes
+    
+    ✅ **Sin marca de agua** - Reportes profesionales
+    
+    [💳 Ver Planes](https://gumroad.com/l/TUPRODUCTO)
+    """)
+    
+    st.stop()
+
+# ========================================
+# A PARTIR DE AQUÍ VA TU APP NORMAL
+# ========================================
+
+# Título de tu app
+st.title("📊 Excel Automator Pro")
+
+# Aquí va todo tu código existente...
+# ... resto de tu aplicación ...
+
+# ========================================
+# AL FINAL, incrementar contador de uso
+# ========================================
+# Cuando el usuario complete un análisis exitosamente:
+if st.session_state.user_tier == 'free':
+    auth.increment_usage()
 warnings.filterwarnings('ignore')
 
 # =====================================================================
@@ -817,3 +830,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
