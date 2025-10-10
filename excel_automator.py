@@ -8,6 +8,52 @@ pip install streamlit pandas plotly openpyxl xlsxwriter scipy scikit-learn
 EJECUTAR:
 streamlit run excel_automator.py
 """
+# Agregar al inicio de excel_automator.py
+import streamlit as st
+
+# Sistema simple de usuarios
+def check_auth():
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+    
+    if not st.session_state.authenticated:
+        st.title("🔐 Excel Automator Pro")
+        
+        tab1, tab2 = st.tabs(["🆓 Versión Gratuita", "💎 Premium"])
+        
+        with tab1:
+            st.info("Prueba gratis: 3 análisis por día")
+            if st.button("Probar Gratis"):
+                st.session_state.authenticated = True
+                st.session_state.user_type = 'free'
+                st.rerun()
+        
+        with tab2:
+            st.success("Análisis ilimitados + Todas las funciones")
+            st.markdown("[🚀 Comprar Premium - $19.99/mes](TU_LINK_GUMROAD)")
+            
+            code = st.text_input("¿Ya tienes código Premium?")
+            if st.button("Activar"):
+                if code == "PREMIUM2024":  # Tu código de prueba
+                    st.session_state.authenticated = True
+                    st.session_state.user_type = 'premium'
+                    st.rerun()
+        return False
+    return True
+
+# Al inicio de tu app
+if not check_auth():
+    st.stop()
+
+# Límites para usuarios gratis
+if st.session_state.user_type == 'free':
+    if 'daily_uses' not in st.session_state:
+        st.session_state.daily_uses = 0
+    
+    if st.session_state.daily_uses >= 3:
+        st.error("🔒 Límite diario alcanzado (3/3)")
+        st.markdown("[💳 Actualizar a Premium](TU_LINK)")
+        st.stop()
 
 import streamlit as st
 import pandas as pd
@@ -769,4 +815,5 @@ def main():
     """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
+
     main()
