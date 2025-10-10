@@ -54,7 +54,7 @@ if not can_use:
     
     ✅ **Sin marca de agua** - Reportes profesionales
     
-    [💳 Ver Planes](https://gumroad.com/l/TUPRODUCTO)
+    [💳 Ver Planes](https://smartappslab.gumroad.com/l/owmzol)
     """)
     
     st.stop()
@@ -816,3 +816,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
