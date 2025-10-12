@@ -10,32 +10,18 @@ import json
 
 
 def initialize_firebase():
-    """
-    Inicializa la conexión con Firebase
-    Solo se ejecuta una vez
-    """
+    """Inicializa Firebase (solo una vez)"""
     if not firebase_admin._apps:
         try:
-            # Leer credenciales desde Streamlit Secrets
-            firebase_creds = st.secrets["firebase"]
+            # Leer credenciales como JSON string
+            firebase_creds_json = st.secrets["firebase_json"]
             
-            # Convertir a diccionario para credentials
-            cred_dict = {
-                "type": firebase_creds["type"],
-                "project_id": firebase_creds["project_id"],
-                "private_key_id": firebase_creds["private_key_id"],
-                "private_key": firebase_creds["private_key"],
-                "client_email": firebase_creds["client_email"],
-                "client_id": firebase_creds["client_id"],
-                "auth_uri": firebase_creds["auth_uri"],
-                "token_uri": firebase_creds["token_uri"],
-                "auth_provider_x509_cert_url": firebase_creds["auth_provider_x509_cert_url"],
-                "client_x509_cert_url": firebase_creds["client_x509_cert_url"],
-            }
+            # Parsear JSON
+            import json
+            cred_dict = json.loads(firebase_creds_json)
             
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
-            
             return True
         except Exception as e:
             st.error(f"Error inicializando Firebase: {str(e)}")
