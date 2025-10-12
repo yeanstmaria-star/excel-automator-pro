@@ -7,7 +7,6 @@ Versión: 2.0 - Integrado con Firebase
 import streamlit as st
 from datetime import datetime, timedelta
 import hashlib
-import firebase_config
 
 # ==========================================
 # CONFIGURACIÓN DE CÓDIGOS PREMIUM
