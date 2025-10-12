@@ -33,6 +33,13 @@ if not auth.require_auth():
     st.stop()  # Detiene la ejecución si no está autenticado
 
 # ========================================
+# VERIFICAR SI DEBE MOSTRAR MI CUENTA
+# ========================================
+if st.session_state.get('show_account_page', False):
+    auth.show_my_account_page()
+    st.stop()
+
+# ========================================
 # VERIFICAR LÍMITES DE USO
 # ========================================
 can_use, error_message = auth.check_usage_limit()
@@ -816,4 +823,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
