@@ -1,6 +1,6 @@
 """
 Sistema de Autenticación y Licencias - Excel Automator Pro
-Versión: 2.1 - Con página Mi Cuenta
+Versión: 2.2 - Con persistencia de sesión y página Mi Cuenta
 """
 
 import streamlit as st
@@ -30,7 +30,31 @@ TIER_LIMITS = {
 # ==========================================
 
 def initialize_session():
-    """Inicializa las variables de sesión necesarias"""
+    """Inicializa las variables de sesión necesarias y carga desde cookies si existen"""
+    
+    # Intentar cargar desde cookies
+    try:
+        import streamlit_cookies_manager
+        cookies = streamlit_cookies_manager.EncryptedCookieManager(
+            prefix="excel_automator_",
+            password="ExcelAutomatorPro2025SecretKey!@#"
+        )
+        
+        if not cookies.ready():
+            st.stop()
+        
+        # Si hay sesión guardada en cookies, cargarla
+        if 'user_tier' in cookies and cookies['user_tier'] and cookies['user_tier'] not in ['None', '']:
+            st.session_state.authenticated = True
+            st.session_state.user_tier = cookies['user_tier']
+            st.session_state.user_email = cookies.get('user_email', '')
+            st.session_state.license_code = cookies.get('license_code', '')
+            st.session_state.expires = cookies.get('expires', '')
+            st.session_state.customer_name = cookies.get('customer_name', '')
+    except Exception as e:
+        pass  # Si falla, continuar sin cookies
+    
+    # Inicializar variables si no existen
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     if 'user_tier' not in st.session_state:
@@ -49,6 +73,47 @@ def initialize_session():
         st.session_state.customer_name = None
     if 'show_account_page' not in st.session_state:
         st.session_state.show_account_page = False
+
+def save_session_to_cookies():
+    """Guarda la sesión en cookies para persistencia entre recargas"""
+    try:
+        import streamlit_cookies_manager
+        cookies = streamlit_cookies_manager.EncryptedCookieManager(
+            prefix="excel_automator_",
+            password="ExcelAutomatorPro2025SecretKey!@#"
+        )
+        
+        if not cookies.ready():
+            return
+        
+        # Guardar datos importantes
+        cookies['user_tier'] = str(st.session_state.get('user_tier', ''))
+        cookies['user_email'] = str(st.session_state.get('user_email', ''))
+        cookies['license_code'] = str(st.session_state.get('license_code', ''))
+        cookies['expires'] = str(st.session_state.get('expires', ''))
+        cookies['customer_name'] = str(st.session_state.get('customer_name', ''))
+        cookies.save()
+    except Exception as e:
+        pass
+
+def clear_session_cookies():
+    """Limpia las cookies de sesión al cerrar sesión"""
+    try:
+        import streamlit_cookies_manager
+        cookies = streamlit_cookies_manager.EncryptedCookieManager(
+            prefix="excel_automator_",
+            password="ExcelAutomatorPro2025SecretKey!@#"
+        )
+        
+        if not cookies.ready():
+            return
+        
+        # Borrar todas las cookies
+        for key in list(cookies.keys()):
+            del cookies[key]
+        cookies.save()
+    except Exception as e:
+        pass
 
 def reset_daily_counter():
     """Resetea el contador diario si es un nuevo día"""
@@ -328,6 +393,7 @@ def show_auth_screen():
             if st.button("🚀 Comenzar Gratis", key="free_button", type="primary"):
                 st.session_state.authenticated = True
                 st.session_state.user_tier = 'free'
+                save_session_to_cookies()
                 st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
@@ -383,6 +449,9 @@ def show_auth_screen():
                         st.session_state.license_code = premium_code_input
                         st.session_state.expires = result.get('expires', '')
                         st.session_state.customer_name = result.get('customerName', 'Usuario Premium')
+                        
+                        save_session_to_cookies()
+                        
                         st.success("✅ ¡Código Premium activado correctamente!")
                         st.balloons()
                         st.rerun()
@@ -409,6 +478,7 @@ def show_user_info_sidebar():
         st.sidebar.info("💎 **Actualiza a Premium**\n\nAnálisis ilimitados + Todas las funciones")
         if st.sidebar.button("🚀 Ver Planes Premium"):
             st.session_state.authenticated = False
+            clear_session_cookies()
             st.rerun()
     else:
         st.sidebar.success("✅ Acceso Premium Activo")
@@ -426,6 +496,7 @@ def show_user_info_sidebar():
     
     st.sidebar.markdown("---")
     if st.sidebar.button("🚪 Cerrar Sesión"):
+        clear_session_cookies()
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
