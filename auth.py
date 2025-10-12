@@ -1,7 +1,7 @@
 """
 Sistema de Autenticación y Licencias - Excel Automator Pro
 Autor: Tu nombre
-Versión: 1.0
+Versión: 2.0 - Integrado con Firebase
 """
 
 import streamlit as st
@@ -12,21 +12,17 @@ import hashlib
 # CONFIGURACIÓN DE CÓDIGOS PREMIUM
 # ==========================================
 
-# Códigos de licencia (Generados por ti o Gumroad)
+# NOTA: Los códigos ahora se leen desde Firebase/Firestore
+# Este diccionario ya no se usa, pero lo dejamos comentado por referencia
+"""
 PREMIUM_CODES = {
-    # Formato: "CÓDIGO": {"expires": "YYYY-MM-DD", "email": "cliente@email.com"}
     "DEMO2024-PREMIUM": {
         "expires": "2025-12-31",
         "email": "demo@test.com",
         "tier": "premium"
     },
-    "TEST-PRO-2024": {
-        "expires": "2025-12-31", 
-        "email": "test@test.com",
-        "tier": "premium"
-    },
-    # Aquí agregarás los códigos que generes para tus clientes
 }
+"""
 
 # ==========================================
 # LÍMITES POR TIER
@@ -67,6 +63,15 @@ def initialize_session():
     
     if 'user_email' not in st.session_state:
         st.session_state.user_email = None
+    
+    if 'license_code' not in st.session_state:
+        st.session_state.license_code = None
+    
+    if 'expires' not in st.session_state:
+        st.session_state.expires = None
+    
+    if 'customer_name' not in st.session_state:
+        st.session_state.customer_name = None
 
 def reset_daily_counter():
     """Resetea el contador diario si es un nuevo día"""
@@ -76,17 +81,17 @@ def reset_daily_counter():
         st.session_state.last_reset = today
 
 def check_code_validity(code):
-    """Verifica si un código de licencia es válido"""
-    if code not in PREMIUM_CODES:
-        return False, "Código no válido"
+    """
+    Verifica si un código es válido usando Firebase
     
-    license_info = PREMIUM_CODES[code]
-    expiry_date = datetime.strptime(license_info['expires'], '%Y-%m-%d').date()
-    
-    if datetime.now().date() > expiry_date:
-        return False, "Código expirado"
-    
-    return True, license_info
+    Returns:
+        tuple: (is_valid: bool, result: dict or error_message: str)
+    """
+    try:
+        import firebase_config
+        return firebase_config.check_premium_code(code)
+    except Exception as e:
+        return False, f"Error al verificar código: {str(e)}"
 
 def increment_usage():
     """Incrementa el contador de usos diarios"""
@@ -202,7 +207,7 @@ def show_auth_screen():
             st.metric("Precio", "$19.99/mes")
             st.write("")
             
-            # Botón de compra - AQUÍ pondrás tu link de Gumroad
+            # Botón de compra - Link de Gumroad
             st.markdown("""
             <a href="https://smartappslab.gumroad.com/l/owmzol" target="_blank">
                 <button style="
@@ -229,22 +234,33 @@ def show_auth_screen():
         st.subheader("¿Ya compraste Premium?")
         st.write("Ingresa tu código de licencia:")
         
-        code = st.text_input("Código de Activación", placeholder="PREMIUM-XXXX-XXXX", key="activation_code")
+        premium_code_input = st.text_input(
+            "Código de Activación", 
+            placeholder="PREMIUM-XXXX-XXXX", 
+            key="activation_code"
+        )
         
         col1, col2 = st.columns([1, 3])
         with col1:
-            if st.button("Activar", key="activate_button", type="primary"):
-                if code:
-                    is_valid, result = check_code_validity(code)
+            if st.button("🔓 Activar", key="activate_button", type="primary"):
+                if premium_code_input:
+                    # Verificar código con Firebase
+                    is_valid, result = check_code_validity(premium_code_input)
                     
                     if is_valid:
+                        # Activar sesión Premium
                         st.session_state.authenticated = True
                         st.session_state.user_tier = 'premium'
-                        st.session_state.user_email = result['email']
-                        st.success("✅ ¡Código activado correctamente!")
+                        st.session_state.user_email = result.get('email', '')
+                        st.session_state.license_code = premium_code_input
+                        st.session_state.expires = result.get('expires', '')
+                        st.session_state.customer_name = result.get('customerName', 'Usuario Premium')
+                        
+                        st.success("✅ ¡Código Premium activado correctamente!")
                         st.balloons()
                         st.rerun()
                     else:
+                        # Mostrar error
                         st.error(f"❌ {result}")
                 else:
                     st.warning("⚠️ Por favor ingresa un código")
@@ -284,8 +300,14 @@ def show_user_info_sidebar():
         st.sidebar.success("✅ Acceso Premium Activo")
         st.sidebar.write("🚀 Análisis ilimitados")
         
+        if st.session_state.customer_name:
+            st.sidebar.write(f"👤 {st.session_state.customer_name}")
+        
         if st.session_state.user_email:
             st.sidebar.write(f"📧 {st.session_state.user_email}")
+        
+        if st.session_state.expires:
+            st.sidebar.write(f"📅 Válido hasta: {st.session_state.expires}")
     
     # Botón de logout
     st.sidebar.markdown("---")
