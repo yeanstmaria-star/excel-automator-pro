@@ -172,6 +172,40 @@ st.markdown("""
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+
+    /* ===== BOTÓN SIDEBAR MOBILE - MUY VISIBLE ===== */
+    button[kind="header"] {
+        background-color: #ffa500 !important;
+        color: white !important;
+        border: 3px solid white !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+        box-shadow: 0 4px 12px rgba(255, 165, 0, 0.6) !important;
+    }
+    
+    button[kind="header"]:hover {
+        background-color: #ff8c00 !important;
+        transform: scale(1.1) !important;
+    }
+    
+    /* Icono del sidebar más visible */
+    button[kind="header"] svg {
+        stroke: white !important;
+        stroke-width: 3 !important;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
+    }
+    
+    /* Asegurar que el botón sea grande en mobile */
+    @media (max-width: 768px) {
+        button[kind="header"] {
+            width: 50px !important;
+            height: 50px !important;
+            position: fixed !important;
+            top: 10px !important;
+            left: 10px !important;
+            z-index: 999999 !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -628,3 +662,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
