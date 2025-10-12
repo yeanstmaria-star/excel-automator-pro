@@ -19,18 +19,29 @@ from datetime import datetime
 from scipy import stats
 import warnings
 
+warnings.filterwarnings('ignore')
+
+# =====================================================================
+# CONFIGURACIÓN (DEBE IR PRIMERO - ANTES DE CUALQUIER OTRA COSA)
+# =====================================================================
+
+st.set_page_config(
+    page_title="Excel Automator Pro",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # ========================================
 # IMPORTAR SISTEMA DE AUTENTICACIÓN
 # ========================================
 import auth
 
-warnings.filterwarnings('ignore')
-
 # ========================================
 # VERIFICAR AUTENTICACIÓN
 # ========================================
 if not auth.require_auth():
-    st.stop()  # Detiene la ejecución si no está autenticado
+    st.stop()
 
 # ========================================
 # VERIFICAR SI DEBE MOSTRAR MI CUENTA
@@ -67,17 +78,9 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CONFIGURACIÓN
+# CSS PREMIUM - DISEÑO VIBRANTE
 # =====================================================================
 
-st.set_page_config(
-    page_title="Excel Automator Pro",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# CSS PREMIUM - DISEÑO VIBRANTE ORIGINAL
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -173,7 +176,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =====================================================================
-# FUNCIONES
+# FUNCIONES AUXILIARES
 # =====================================================================
 
 def detect_outliers(df, column):
@@ -306,7 +309,7 @@ def main():
             else:
                 df = pd.read_excel(uploaded_file)
             
-            # ===== PROCESAMIENTO AUTOMÁTICO INTELIGENTE =====
+            # PROCESAMIENTO AUTOMÁTICO
             st.info("🔧 Procesando y optimizando datos automáticamente...")
             
             df_original = df.copy()
@@ -317,31 +320,30 @@ def main():
                 'duplicates': df.duplicated().sum()
             }
             
-            # 1. LIMPIAR columnas y filas completamente vacías
-            df = df.dropna(axis=1, how='all')  # Columnas vacías
-            df = df.dropna(how='all')  # Filas vacías
+            # Limpiar
+            df = df.dropna(axis=1, how='all')
+            df = df.dropna(how='all')
             
-            # 2. ORDENAR automáticamente por fecha si existe
+            # Ordenar por fecha
             date_cols = []
             for col in df.columns:
                 if 'fecha' in col.lower() or 'date' in col.lower():
                     try:
                         df[col] = pd.to_datetime(df[col], errors='coerce')
-                        if df[col].notna().sum() > len(df) * 0.5:  # Si >50% son fechas válidas
+                        if df[col].notna().sum() > len(df) * 0.5:
                             date_cols.append(col)
                     except:
                         pass
             
             if date_cols:
-                # Ordenar por la primera columna de fecha encontrada
                 df = df.sort_values(by=date_cols[0], ascending=True).reset_index(drop=True)
                 st.success(f"✅ Datos ordenados cronológicamente por '{date_cols[0]}'")
             
-            # 3. LIMPIAR espacios en texto
+            # Limpiar espacios
             for col in df.select_dtypes(include=['object']).columns:
                 df[col] = df[col].str.strip() if df[col].dtype == 'object' else df[col]
             
-            # 4. ELIMINAR duplicados automáticamente
+            # Eliminar duplicados
             duplicates_removed = df.duplicated().sum()
             if duplicates_removed > 0:
                 df = df.drop_duplicates().reset_index(drop=True)
@@ -353,7 +355,7 @@ def main():
                 'duplicates': df.duplicated().sum()
             }
             
-            # Mostrar resumen de limpieza
+            # Mostrar resumen
             if initial_stats != final_stats:
                 st.markdown("""
                     <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
@@ -379,9 +381,7 @@ def main():
             
             st.success(f"✅ Archivo procesado: **{uploaded_file.name}**")
 
-            # ========================================
-            # INCREMENTAR USO (SOLO PARA USUARIOS FREE)
-            # ========================================
+            # INCREMENTAR USO
             if st.session_state.user_tier == 'free':
                 auth.increment_usage()
                 st.success(f"✅ Análisis completado! ({st.session_state.daily_uses}/3 usados hoy)")
@@ -394,11 +394,10 @@ def main():
                 "💾 Exportar"
             ])
             
-            # ===== TAB 1: RESUMEN =====
+            # TAB 1: RESUMEN
             with tab1:
                 st.markdown("### Resumen General")
                 
-                # KPIs
                 col1, col2, col3, col4 = st.columns(4)
                 
                 with col1:
@@ -414,7 +413,6 @@ def main():
                 
                 st.markdown("---")
                 
-                # Insights
                 st.markdown("### 🧠 Insights Automáticos")
                 insights = generate_insights(df)
                 for insight in insights:
@@ -422,7 +420,6 @@ def main():
                 
                 st.markdown("---")
                 
-                # Vista previa
                 st.markdown("### Vista Previa")
                 
                 search = st.text_input("🔍 Buscar en los datos", placeholder="Escribe para buscar...")
@@ -435,7 +432,7 @@ def main():
                 else:
                     st.dataframe(df.head(100), use_container_width=True)
             
-            # ===== TAB 2: EXPLORAR =====
+            # TAB 2: EXPLORAR
             with tab2:
                 st.markdown("### Análisis Exploratorio")
                 
@@ -477,7 +474,6 @@ def main():
                 
                 st.markdown("---")
                 
-                # Top valores
                 st.markdown("#### Top Valores")
                 text_cols = df.select_dtypes(include=['object']).columns.tolist()
                 if text_cols:
@@ -494,19 +490,10 @@ def main():
                         color=value_counts.values,
                         color_continuous_scale='Viridis'
                     )
-                    fig.update_layout(
-                        height=500,
-                        showlegend=False,
-                        plot_bgcolor='#1e293b',
-                        paper_bgcolor='#1e293b',
-                        font=dict(color='white', size=12),
-                        xaxis=dict(gridcolor='#334155', color='white'),
-                        yaxis=dict(color='white'),
-                        margin=dict(l=150, r=20, t=40, b=40)
-                    )
+                    fig.update_layout(height=500, showlegend=False)
                     st.plotly_chart(fig, use_container_width=True)
             
-            # ===== TAB 3: GRÁFICOS =====
+            # TAB 3: GRÁFICOS
             with tab3:
                 st.markdown("### Visualizaciones")
                 
@@ -522,43 +509,11 @@ def main():
                     bins = st.slider("Bins", 10, 100, 30, key="hist_bins")
                     
                     fig = px.histogram(df, x=col, nbins=bins, color_discrete_sequence=['#8b5cf6'])
-                    fig.update_layout(
-                        plot_bgcolor='#1e293b',
-                        paper_bgcolor='#1e293b',
-                        font=dict(color='white', size=13),
-                        xaxis=dict(
-                            gridcolor='#334155', 
-                            color='white',
-                            title=dict(text=col, font=dict(color='white', size=14))
-                        ),
-                        yaxis=dict(
-                            gridcolor='#334155', 
-                            color='white',
-                            title=dict(text='Frecuencia', font=dict(color='white', size=14))
-                        ),
-                        title=dict(text=f'Distribución de {col}', font=dict(color='white', size=16)),
-                        margin=dict(l=60, r=40, t=60, b=60)
-                    )
-                    fig.update_traces(marker=dict(line=dict(color='#6d28d9', width=1)))
                     st.plotly_chart(fig, use_container_width=True)
                 
                 elif viz_type == "Box Plot" and numeric_cols:
                     col = st.selectbox("Columna", numeric_cols, key="box_col")
-                    
                     fig = px.box(df, y=col, color_discrete_sequence=['#10b981'])
-                    fig.update_layout(
-                        plot_bgcolor='#1e293b',
-                        paper_bgcolor='#1e293b',
-                        font=dict(color='white', size=13),
-                        xaxis=dict(color='white'),
-                        yaxis=dict(
-                            gridcolor='#334155', 
-                            color='white',
-                            title=dict(text=col, font=dict(color='white', size=14))
-                        ),
-                        title=dict(text=f'Box Plot de {col}', font=dict(color='white', size=16)),
-                        margin=dict(l=60, r=40, t=60, b=60)
-                    )
                     st.plotly_chart(fig, use_container_width=True)
                 
                 elif viz_type == "Scatter Plot" and len(numeric_cols) >= 2:
@@ -569,40 +524,11 @@ def main():
                         y = st.selectbox("Eje Y", numeric_cols, index=1 if len(numeric_cols) > 1 else 0, key="scatter_y")
                     
                     fig = px.scatter(df, x=x, y=y, trendline="ols", color_discrete_sequence=['#f59e0b'])
-                    fig.update_layout(
-                        plot_bgcolor='#1e293b',
-                        paper_bgcolor='#1e293b',
-                        font=dict(color='white', size=13),
-                        xaxis=dict(
-                            gridcolor='#334155', 
-                            color='white',
-                            title=dict(text=x, font=dict(color='white', size=14))
-                        ),
-                        yaxis=dict(
-                            gridcolor='#334155', 
-                            color='white',
-                            title=dict(text=y, font=dict(color='white', size=14))
-                        ),
-                        title=dict(text=f'{x} vs {y}', font=dict(color='white', size=16)),
-                        margin=dict(l=60, r=40, t=60, b=60)
-                    )
                     st.plotly_chart(fig, use_container_width=True)
                 
                 elif viz_type == "Correlación" and len(numeric_cols) >= 2:
                     corr = df[numeric_cols].corr()
-                    
-                    fig = px.imshow(corr, text_auto='.2f', aspect="auto", 
-                                   color_continuous_scale='RdBu_r',
-                                   labels=dict(color="Correlación"))
-                    fig.update_layout(
-                        plot_bgcolor='#1e293b',
-                        paper_bgcolor='#1e293b',
-                        font=dict(color='white', size=12),
-                        xaxis=dict(color='white', tickangle=45),
-                        yaxis=dict(color='white'),
-                        title=dict(text='Matriz de Correlación', font=dict(color='white', size=16)),
-                        margin=dict(l=100, r=40, t=60, b=100)
-                    )
+                    fig = px.imshow(corr, text_auto='.2f', aspect="auto", color_continuous_scale='RdBu_r')
                     st.plotly_chart(fig, use_container_width=True)
                 
                 elif viz_type == "Pie Chart":
@@ -612,82 +538,35 @@ def main():
                         top = st.slider("Top N", 3, 15, 8, key="pie_top")
                         
                         values = df[col].value_counts().head(top)
-                        fig = px.pie(values=values.values, names=values.index, hole=0.4,
-                                    color_discrete_sequence=px.colors.qualitative.Set3)
-                        fig.update_layout(
-                            plot_bgcolor='#1e293b',
-                            paper_bgcolor='#1e293b',
-                            font=dict(color='white', size=13),
-                            title=dict(text=f'Distribución de {col}', font=dict(color='white', size=16)),
-                            margin=dict(l=20, r=20, t=60, b=20)
-                        )
+                        fig = px.pie(values=values.values, names=values.index, hole=0.4)
                         st.plotly_chart(fig, use_container_width=True)
             
-            # ===== TAB 4: EXPORTAR =====
+            # TAB 4: EXPORTAR
             with tab4:
                 st.markdown("### Exportar Datos Procesados")
                 
-                st.info("💡 Los datos ya fueron limpiados y ordenados automáticamente al cargarlos")
+                st.info("💡 Los datos ya fueron limpiados y ordenados automáticamente")
                 
-                st.markdown("#### Opciones Adicionales de Procesamiento")
+                st.markdown("#### Opciones Adicionales")
                 
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    remove_nulls = st.checkbox("Eliminar filas con valores nulos", value=False,
-                                              help="Remover filas que tengan algún valor vacío")
+                    remove_nulls = st.checkbox("Eliminar filas con valores nulos", value=False)
                     include_stats = st.checkbox("Incluir hoja de estadísticas", value=True)
                 
                 with col2:
                     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
                     if numeric_cols:
-                        remove_outliers = st.checkbox("Eliminar outliers extremos", value=False,
-                                                     help="Remover valores anormalmente altos/bajos")
+                        remove_outliers = st.checkbox("Eliminar outliers extremos", value=False)
                 
                 if st.button("🎯 Preparar Descarga", type="primary"):
                     df_export = df.copy()
-                    changes_made = []
                     
-                    initial_rows = len(df_export)
-                    
-                    # Procesamiento adicional
                     if remove_nulls:
-                        before = len(df_export)
                         df_export = df_export.dropna()
-                        removed = before - len(df_export)
-                        if removed > 0:
-                            changes_made.append(f"Eliminadas {removed} filas con valores nulos")
                     
-                    if 'remove_outliers' in locals() and remove_outliers and numeric_cols:
-                        for col in numeric_cols[:3]:  # Primeras 3 columnas numéricas
-                            Q1 = df_export[col].quantile(0.25)
-                            Q3 = df_export[col].quantile(0.75)
-                            IQR = Q3 - Q1
-                            lower = Q1 - 3 * IQR  # 3 IQR = outliers extremos
-                            upper = Q3 + 3 * IQR
-                            before = len(df_export)
-                            df_export = df_export[(df_export[col] >= lower) & (df_export[col] <= upper)]
-                            removed = before - len(df_export)
-                            if removed > 0:
-                                changes_made.append(f"Removidos {removed} outliers en '{col}'")
-                    
-                    if changes_made:
-                        st.success("✅ Procesamiento adicional completado")
-                        for change in changes_made:
-                            st.write(f"• {change}")
-                    else:
-                        st.success("✅ Datos listos para exportar")
-                    
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("Filas Finales", len(df_export))
-                    with col2:
-                        removed_total = initial_rows - len(df_export)
-                        st.metric("Filas Procesadas", removed_total)
-                    with col3:
-                        quality = (1 - df_export.isnull().sum().sum() / (len(df_export) * len(df_export.columns))) * 100
-                        st.metric("Calidad de Datos", f"{quality:.1f}%")
-                    
+                    st.success("✅ Datos listos para exportar")
                     st.session_state['export_df'] = df_export
                 
                 st.markdown("---")
@@ -705,8 +584,7 @@ def main():
                             "📥 Descargar CSV",
                             data=csv_data,
                             file_name=f"datos_limpios_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
-                            mime="text/csv",
-                            help="CSV compatible con Excel"
+                            mime="text/csv"
                         )
                     
                     with col2:
@@ -715,45 +593,18 @@ def main():
                             "📥 Descargar Excel",
                             data=excel_data,
                             file_name=f"datos_limpios_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            help="Excel formateado profesionalmente"
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
                     
-                    with col3:
-                        if include_stats:
-                            excel_complete = create_excel_download(df_to_export, True)
-                            st.download_button(
-                                "📊 Excel con Estadísticas",
-                                data=excel_complete,
-                                file_name=f"reporte_completo_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
-                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                help="Incluye hoja de estadísticas"
-                            )
-                    
-                    # Vista previa
-                    st.markdown("#### 👀 Vista Previa del Archivo a Exportar")
+                    st.markdown("#### 👀 Vista Previa")
                     st.dataframe(df_to_export.head(20), use_container_width=True)
-                    
-                else:
-                    st.info("👆 Presiona 'Preparar Descarga' para generar los archivos")
-                    
-                    # Mostrar qué se va a exportar
-                    st.markdown("#### 📋 Resumen de Datos a Exportar")
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("Filas", len(df))
-                    with col2:
-                        st.metric("Columnas", len(df.columns))
-                    with col3:
-                        quality = (1 - df.isnull().sum().sum() / (len(df) * len(df.columns))) * 100
-                        st.metric("Calidad", f"{quality:.1f}%")
         
         except Exception as e:
             st.error(f"❌ Error: {str(e)}")
             st.info("Verifica que el archivo esté en formato correcto")
     
     else:
-        # Landing cuando no hay archivo
+        # Landing
         st.markdown("""
             <div style='text-align: center; padding: 60px 20px; 
                         background: white; border-radius: 16px; 
@@ -763,52 +614,6 @@ def main():
                 </h2>
                 <p style='color: #64748b; font-size: 1.125rem;'>
                     Procesamiento automático e inteligente de datos
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.markdown("""
-                #### 🤖 Automático
-                - Limpieza al instante
-                - Ordenamiento inteligente
-                - Sin configuración manual
-                - Resultados profesionales
-            """)
-        
-        with col2:
-            st.markdown("""
-                #### 📊 Inteligente
-                - Detecta fechas y ordena
-                - Elimina duplicados
-                - Encuentra outliers
-                - Genera insights
-            """)
-        
-        with col3:
-            st.markdown("""
-                #### ⚡ Rápido
-                - Miles de filas en segundos
-                - Exportación inmediata
-                - Sin esperas
-                - Trabajo impecable
-            """)
-        
-        st.markdown("---")
-        
-        st.markdown("""
-            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        padding: 30px; border-radius: 16px; text-align: center;'>
-                <h3 style='color: white; margin-bottom: 15px;'>✨ Cómo Funciona</h3>
-                <p style='color: rgba(255,255,255,0.9); font-size: 1rem; line-height: 1.6;'>
-                    <strong>1.</strong> Sube tu archivo Excel o CSV<br>
-                    <strong>2.</strong> La app lo procesa automáticamente<br>
-                    <strong>3.</strong> Explora insights y visualizaciones<br>
-                    <strong>4.</strong> Descarga resultados profesionales
                 </p>
             </div>
         """, unsafe_allow_html=True)
@@ -823,5 +628,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
