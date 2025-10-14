@@ -1,6 +1,6 @@
 """
 Sistema de Autenticación y Licencias - Excel Automator Pro
-Versión: 2.5 - Funcional con persistencia por URL
+Versión: 2.6 - Con persistencia real usando query params
 """
 
 import streamlit as st
@@ -22,8 +22,39 @@ TIER_LIMITS = {
     }
 }
 
+def check_code_validity(code):
+    """Verifica código Premium"""
+    try:
+        import firebase_config
+        return firebase_config.check_premium_code(code)
+    except Exception as e:
+        return False, str(e)
+
 def initialize_session():
-    """Inicializa variables de sesión"""
+    """Inicializa variables de sesión y restaura desde URL si existe"""
+    
+    # PASO 1: Intentar restaurar sesión desde URL
+    try:
+        query_params = st.query_params
+        saved_code = query_params.get('code', None)
+        
+        # Si hay código en URL y no estamos autenticados, validar
+        if saved_code and not st.session_state.get('authenticated', False):
+            is_valid, result = check_code_validity(saved_code)
+            
+            if is_valid:
+                # Restaurar sesión Premium
+                st.session_state.authenticated = True
+                st.session_state.user_tier = 'premium'
+                st.session_state.user_email = result.get('email', '')
+                st.session_state.license_code = saved_code
+                st.session_state.expires = result.get('expires', '')
+                st.session_state.customer_name = result.get('customerName', 'Usuario Premium')
+                st.session_state.session_restored = True
+    except Exception as e:
+        pass
+    
+    # PASO 2: Inicializar todas las variables
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     if 'user_tier' not in st.session_state:
@@ -45,13 +76,23 @@ def initialize_session():
     if 'session_restored' not in st.session_state:
         st.session_state.session_restored = False
 
-def check_code_validity(code):
-    """Verifica código Premium"""
+def save_code_to_url():
+    """Guarda el código Premium en la URL para persistencia"""
     try:
-        import firebase_config
-        return firebase_config.check_premium_code(code)
+        if st.session_state.get('license_code'):
+            st.query_params['code'] = st.session_state.license_code
+            return True
     except Exception as e:
-        return False, str(e)
+        return False
+    return False
+
+def clear_url():
+    """Limpia la URL al cerrar sesión"""
+    try:
+        if 'code' in st.query_params:
+            st.query_params.clear()
+    except Exception as e:
+        pass
 
 def reset_daily_counter():
     """Resetea contador diario"""
@@ -87,6 +128,20 @@ def show_my_account_page():
         return
     
     st.success("✨ MIEMBRO PREMIUM ACTIVO")
+    st.markdown("---")
+    
+    # Mostrar URL para guardar
+    current_url = f"{st.query_params.get('code', 'NO-GUARDADO')}"
+    if current_url != 'NO-GUARDADO':
+        st.info(f"""
+        📌 **Importante:** Para mantener tu sesión activa, guarda esta URL como favorito:
+```
+        https://tu-app.streamlit.app/?code={current_url}
+```
+        
+        Al abrir ese favorito, tu sesión se restaurará automáticamente.
+        """)
+    
     st.markdown("---")
     
     col1, col2 = st.columns(2)
@@ -125,7 +180,7 @@ def show_my_account_page():
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("🔄 Renovar", use_container_width=True):
-            st.markdown('[💳 Renovar Premium](https://smartappslab.gumroad.com/l/owmzol)')
+            st.link_button("💳 Ir a Gumroad", "https://smartappslab.gumroad.com/l/owmzol")
     with col2:
         if st.button("📧 Soporte", use_container_width=True):
             st.info("support@excelautomatorpro.com")
@@ -194,6 +249,7 @@ def show_auth_screen():
                     is_valid, result = check_code_validity(code)
                 
                 if is_valid:
+                    # Guardar en session_state
                     st.session_state.authenticated = True
                     st.session_state.user_tier = 'premium'
                     st.session_state.user_email = result.get('email', '')
@@ -201,7 +257,11 @@ def show_auth_screen():
                     st.session_state.expires = result.get('expires', '')
                     st.session_state.customer_name = result.get('customerName', 'Usuario Premium')
                     
+                    # GUARDAR EN URL
+                    save_code_to_url()
+                    
                     st.success("✅ ¡Código Premium activado!")
+                    st.info("💾 **Importante:** Guarda esta URL como favorito para mantener tu sesión activa")
                     st.balloons()
                     st.rerun()
                 else:
@@ -216,6 +276,12 @@ def show_user_info_sidebar():
     
     tier_name = TIER_LIMITS[st.session_state.user_tier]['name']
     st.sidebar.subheader(tier_name)
+    
+    # Mostrar si sesión restaurada
+    if st.session_state.get('session_restored', False):
+        st.sidebar.success("✅ Sesión restaurada automáticamente")
+        # Reset flag después de mostrar
+        st.session_state.session_restored = False
     
     if st.session_state.user_tier == 'free':
         reset_daily_counter()
@@ -232,6 +298,7 @@ def show_user_info_sidebar():
         
         if st.sidebar.button("🚀 Ver Premium", use_container_width=True):
             st.session_state.authenticated = False
+            clear_url()
             st.rerun()
     else:
         st.sidebar.success("✅ Premium Activo")
@@ -253,6 +320,7 @@ def show_user_info_sidebar():
     st.sidebar.markdown("---")
     
     if st.sidebar.button("🚪 Cerrar Sesión", use_container_width=True):
+        clear_url()
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
