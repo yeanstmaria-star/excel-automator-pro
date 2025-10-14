@@ -78,205 +78,337 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CSS OPTIMIZADO PARA EXCEL - ESTILO HOJA DE CÁLCULO
+# CSS MODERNO - ESTILO DASHBOARD CON SIDEBAR OSCURO
 # =====================================================================
 
 st.markdown("""
 <style>
-    /*
-     * CSS optimizado para una visualización tipo Excel
-     * Diseño minimalista, funcional y orientado a datos tabulares
-     * Se priorizan propiedades esenciales para máxima legibilidad
-     */
+    /* --- IMPORTAR FUENTE MODERNA --- */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
-    /* --- ESTILOS BASE --- */
+    /* --- VARIABLES DE COLOR --- */
+    :root {
+        --sidebar-bg: #2d3748;
+        --sidebar-text: #e2e8f0;
+        --sidebar-active: #14b8a6;
+        --main-bg: #f7fafc;
+        --card-bg: #ffffff;
+        --text-primary: #1a202c;
+        --text-secondary: #4a5568;
+        --accent-color: #14b8a6;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --error-color: #ef4444;
+        --border-color: #e2e8f0;
+        --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    }
+    
+    /* --- BASE --- */
     html, body, [class*="css"] {
-        font-family: 'Calibri', 'Arial', sans-serif;
-        font-size: 11pt;
-        color: #333;
-        line-height: 1.2;
-        background-color: #fff;
-        margin: 0;
-        padding: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
     
     .main {
-        padding: 15px;
-        background-color: #ffffff;
+        padding: 2rem;
+        background-color: var(--main-bg);
     }
     
-    /* --- TIPOGRAFÍA SIMPLE --- */
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Calibri', 'Arial', sans-serif;
-        color: #000;
-        margin-top: 15px;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #eee;
-    }
-    
+    /* --- TIPOGRAFÍA CON ALTO CONTRASTE --- */
     h1 {
-        font-size: 16pt;
-        font-weight: bold;
+        color: var(--text-primary);
         text-align: center;
-        color: #000;
+        font-weight: 700;
+        font-size: 2.5rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.5rem;
     }
     
-    h2 { font-size: 14pt; font-weight: bold; }
-    h3 { font-size: 12pt; font-weight: bold; }
-    h4, h5, h6 { font-size: 11pt; font-weight: bold; }
-    
-    p {
-        margin-bottom: 8px;
-        font-size: 11pt;
-        line-height: 1.3;
-        color: #333;
+    h2, h3 {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
     }
     
-    /* --- BOTONES SIMPLES --- */
+    h4 {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    p, span, label {
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+    
+    /* --- SIDEBAR OSCURO --- */
+    [data-testid="stSidebar"] {
+        background-color: var(--sidebar-bg);
+        border-right: none;
+    }
+    
+    [data-testid="stSidebar"] .stMarkdown,
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] span {
+        color: var(--sidebar-text) !important;
+    }
+    
+    [data-testid="stSidebar"] strong {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+    
+    /* --- BOTONES MODERNOS CON ACENTO --- */
     .stButton>button {
         width: 100%;
-        background-color: #4CAF50;
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--success-color) 100%);
         color: white;
-        font-weight: bold;
-        font-size: 11pt;
-        border: 1px solid #3d8b40;
-        padding: 8px 15px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
         cursor: pointer;
     }
     
     .stButton>button:hover {
-        background-color: #45a049;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
     }
     
-    /* --- TABLAS ESTILO EXCEL --- */
-    table, .dataframe {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #a0a0a0;
-        margin-bottom: 10px;
-        font-size: 10pt;
+    /* --- TABS ESTILO MODERNO --- */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 0.5rem;
+        background-color: transparent;
+        border-bottom: 2px solid var(--border-color);
+        padding: 0 0 0.5rem 0;
     }
     
-    th, td {
-        border: 1px solid #d0d0d0;
-        padding: 6px 10px;
-        text-align: left;
-        vertical-align: top;
-        white-space: normal;
+    .stTabs [data-baseweb="tab"] {
+        background-color: transparent;
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem 0.5rem 0 0;
+        transition: all 0.2s;
     }
     
-    th {
-        background-color: #e6e6e6;
-        font-weight: bold;
-        text-align: center;
-        color: #000;
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: rgba(20, 184, 166, 0.1);
+        color: var(--accent-color);
     }
     
-    /* Zebra-striping para mejor legibilidad */
-    tr:nth-child(even) {
-        background-color: #f7f7f7;
+    .stTabs [aria-selected="true"] {
+        background-color: white;
+        color: var(--accent-color);
+        border-bottom: 3px solid var(--accent-color);
+        font-weight: 600;
     }
     
-    /* --- DATAFRAME DE STREAMLIT --- */
+    /* --- MÉTRICAS CON ALTO CONTRASTE --- */
+    [data-testid="stMetricValue"] {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    [data-testid="stMetricLabel"] {
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    /* --- CARDS MODERNOS CON SOMBRA --- */
+    div[data-testid="column"] > div {
+        background-color: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+    
+    div[data-testid="column"] > div:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+    
+    /* --- DATAFRAME ESTILO MODERNO --- */
     .stDataFrame {
-        border: 1px solid #a0a0a0;
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: var(--shadow);
     }
     
     [data-testid="stDataFrame"] table {
         border-collapse: collapse;
     }
     
-    /* --- MÉTRICAS ESTILO EXCEL --- */
-    [data-testid="stMetricValue"] {
-        font-size: 18pt;
-        font-weight: bold;
-        color: #000;
-    }
-    
-    [data-testid="stMetricLabel"] {
-        color: #666;
-        font-weight: bold;
-        font-size: 9pt;
+    [data-testid="stDataFrame"] th {
+        background-color: #f8fafc;
+        color: var(--text-primary);
+        font-weight: 600;
         text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem;
+        border-bottom: 2px solid var(--border-color);
     }
     
-    /* --- TABS SIMPLES --- */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: #e6e6e6;
-        border-bottom: 2px solid #a0a0a0;
+    [data-testid="stDataFrame"] td {
+        color: var(--text-secondary);
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--border-color);
     }
     
-    .stTabs [data-baseweb="tab"] {
-        background-color: #f0f0f0;
-        color: #333;
-        font-weight: bold;
-        border: 1px solid #d0d0d0;
-        padding: 8px 15px;
+    [data-testid="stDataFrame"] tr:hover {
+        background-color: rgba(20, 184, 166, 0.05);
     }
     
-    .stTabs [aria-selected="true"] {
-        background-color: #fff;
-        color: #000;
-        border-bottom: 3px solid #4CAF50;
-    }
-    
-    /* --- SUCCESS BOX SIMPLE --- */
-    .success-box {
-        padding: 10px;
-        background-color: #e8f5e9;
-        border-left: 4px solid #2e7d32;
-        margin: 10px 0;
-        color: #2e7d32;
-    }
-    
-    /* --- ALERTAS SIMPLES --- */
-    .stAlert {
-        border: 1px solid #d0d0d0;
-    }
-    
-    /* --- INPUTS SIMPLES --- */
+    /* --- INPUTS MODERNOS --- */
     .stTextInput>div>div>input,
     .stSelectbox>div>div>select {
-        border: 1px solid #d0d0d0;
-        padding: 6px 10px;
-        font-size: 11pt;
-        font-family: 'Calibri', 'Arial', sans-serif;
+        border: 2px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        background-color: white;
+        transition: all 0.2s;
     }
     
     .stTextInput>div>div>input:focus,
     .stSelectbox>div>div>select:focus {
-        border: 2px solid #4CAF50;
+        border-color: var(--accent-color);
         outline: none;
+        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
     }
     
-    /* --- FILE UPLOADER SIMPLE --- */
+    .stTextInput label,
+    .stSelectbox label {
+        color: var(--text-primary) !important;
+        font-weight: 600 !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* --- FILE UPLOADER MODERNO --- */
     [data-testid="stFileUploader"] {
-        background-color: #f7f7f7;
-        border: 2px dashed #a0a0a0;
-        padding: 15px;
+        background-color: white;
+        border: 2px dashed var(--border-color);
+        border-radius: 0.75rem;
+        padding: 2rem;
+        transition: all 0.3s;
     }
     
-    /* --- SIDEBAR SIMPLE --- */
-    [data-testid="stSidebar"] {
-        background-color: #f0f0f0;
-        border-right: 1px solid #d0d0d0;
+    [data-testid="stFileUploader"]:hover {
+        border-color: var(--accent-color);
+        background-color: rgba(20, 184, 166, 0.02);
     }
     
-    /* --- CLASES DE UTILIDAD EXCEL --- */
-    .text-center { text-align: center !important; }
-    .text-right { text-align: right !important; }
-    .text-bold { font-weight: bold !important; }
+    [data-testid="stFileUploader"] label {
+        color: var(--text-primary) !important;
+        font-weight: 600 !important;
+    }
     
-    .highlight { background-color: #fffacd !important; }
-    .warning { background-color: #ffe0b2 !important; color: #b71c1c !important; }
-    .success { background-color: #e8f5e9 !important; color: #2e7d32 !important; }
-    .info { background-color: #e3f2fd !important; color: #1565c0 !important; }
+    /* --- ALERTAS MODERNAS --- */
+    .stAlert {
+        border-radius: 0.5rem;
+        border: none;
+        box-shadow: var(--shadow);
+        padding: 1rem 1.25rem;
+    }
+    
+    .stSuccess {
+        background-color: #d1fae5;
+        color: #065f46;
+        border-left: 4px solid var(--success-color);
+    }
+    
+    .stInfo {
+        background-color: #dbeafe;
+        color: #1e40af;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .stWarning {
+        background-color: #fef3c7;
+        color: #92400e;
+        border-left: 4px solid var(--warning-color);
+    }
+    
+    .stError {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border-left: 4px solid var(--error-color);
+    }
+    
+    /* --- SUCCESS BOX PERSONALIZADO --- */
+    .success-box {
+        padding: 1rem 1.25rem;
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border-left: 4px solid var(--success-color);
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+        color: #065f46;
+        font-weight: 500;
+        box-shadow: var(--shadow);
+    }
+    
+    /* --- SLIDER MODERNO --- */
+    .stSlider [data-baseweb="slider"] {
+        margin-top: 1rem;
+    }
+    
+    .stSlider [data-baseweb="slider"] [role="slider"] {
+        background-color: var(--accent-color);
+        border: 3px solid white;
+        box-shadow: var(--shadow);
+    }
+    
+    /* --- CHECKBOX Y RADIO --- */
+    .stCheckbox label,
+    .stRadio label {
+        color: var(--text-primary) !important;
+        font-weight: 500 !important;
+    }
     
     /* --- OCULTAR ELEMENTOS --- */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    
+    /* --- SCROLLBAR PERSONALIZADO --- */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--main-bg);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0;
+    }
 </style>
 """, unsafe_allow_html=True)
 
