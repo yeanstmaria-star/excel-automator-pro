@@ -78,133 +78,38 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CSS PREMIUM - DISEÑO VIBRANTE
+# CSS SIMPLE Y LIMPIO
 # =====================================================================
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-    }
-    
     .main {
-        padding: 1rem 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
     }
-    
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: rgba(255,255,255,0.1);
-        padding: 10px;
-        border-radius: 10px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background-color: rgba(255,255,255,0.2);
-        border-radius: 8px;
-        padding: 10px 20px;
-        color: white;
-        font-weight: 600;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .metric-card {
-        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        border-left: 5px solid #667eea;
-        margin: 10px 0;
-    }
-    
     .stButton>button {
         width: 100%;
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        background-color: #4CAF50;
         color: white;
         font-weight: bold;
-        border-radius: 12px;
-        padding: 12px 24px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        transition: all 0.3s;
-    }
-    
-    .stButton>button:hover {
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        transform: translateY(-2px);
-    }
-    
-    h1 {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        text-align: center;
-        font-size: 3rem;
-    }
-    
-    .success-box {
-        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-        padding: 15px;
-        border-left: 5px solid #28a745;
         border-radius: 10px;
-        margin: 15px 0;
+        padding: 0.5rem 1rem;
     }
-    
-    .info-card {
-        background: rgba(255,255,255,0.95);
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        margin: 10px 0;
+    .stButton>button:hover {
+        background-color: #45a049;
     }
-    
-    [data-testid="stMetricValue"] {
-        font-size: 2rem;
-        font-weight: 700;
+    .css-1d391kg {
+        padding: 2rem 1rem;
     }
-    
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* ===== BOTÓN SIDEBAR MOBILE - MUY VISIBLE ===== */
-    button[kind="header"] {
-        background-color: #ffa500 !important;
-        color: white !important;
-        border: 3px solid white !important;
-        border-radius: 8px !important;
-        padding: 8px !important;
-        box-shadow: 0 4px 12px rgba(255, 165, 0, 0.6) !important;
+    h1 {
+        color: #2E86C1;
+        text-align: center;
     }
-    
-    button[kind="header"]:hover {
-        background-color: #ff8c00 !important;
-        transform: scale(1.1) !important;
-    }
-    
-    /* Icono del sidebar más visible */
-    button[kind="header"] svg {
-        stroke: white !important;
-        stroke-width: 3 !important;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
-    }
-    
-    /* Asegurar que el botón sea grande en mobile */
-    @media (max-width: 768px) {
-        button[kind="header"] {
-            width: 50px !important;
-            height: 50px !important;
-            position: fixed !important;
-            top: 10px !important;
-            left: 10px !important;
-            z-index: 999999 !important;
-        }
+    .success-box {
+        padding: 1rem;
+        background-color: #d4edda;
+        border-left: 5px solid #28a745;
+        border-radius: 5px;
+        margin: 1rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -662,4 +567,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
