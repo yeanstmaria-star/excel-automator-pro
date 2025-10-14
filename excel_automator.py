@@ -78,39 +78,232 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CSS SIMPLE Y LIMPIO
+# CSS PROFESIONAL ELEGANTE Y MINIMALISTA
 # =====================================================================
 
 st.markdown("""
 <style>
-    .main {
-        padding: 2rem;
+    /* --- VARIABLES CSS --- */
+    :root {
+        /* Paleta de Colores */
+        --color-primary: #007bff;
+        --color-primary-dark: #0056b3;
+        --color-success: #28a745;
+        --color-success-light: #d4edda;
+        --color-text-dark: #333333;
+        --color-text-light: #666666;
+        --color-background: #ffffff;
+        --color-background-gray: #f8f9fa;
+        --color-border: #e0e0e0;
+        
+        /* Tipografía */
+        --font-family-base: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+        --font-size-base: 1rem;
+        --line-height-base: 1.6;
+        
+        /* Espaciado */
+        --spacing-xs: 0.5rem;
+        --spacing-sm: 1rem;
+        --spacing-md: 1.5rem;
+        --spacing-lg: 2rem;
+        --spacing-xl: 3rem;
+        
+        /* Otros */
+        --border-radius: 0.375rem;
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+        --transition: 0.3s ease;
     }
+    
+    /* --- IMPORTAR FUENTE --- */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* --- RESET & BASE --- */
+    html, body, [class*="css"] {
+        font-family: var(--font-family-base);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .main {
+        padding: var(--spacing-lg);
+        background-color: var(--color-background-gray);
+    }
+    
+    /* --- TIPOGRAFÍA --- */
+    h1 {
+        color: var(--color-primary);
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    h2, h3, h4 {
+        color: var(--color-text-dark);
+        font-weight: 600;
+        line-height: 1.3;
+        margin-top: var(--spacing-md);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    p {
+        color: var(--color-text-light);
+        line-height: var(--line-height-base);
+    }
+    
+    /* --- BOTONES --- */
     .stButton>button {
         width: 100%;
-        background-color: #4CAF50;
+        background-color: var(--color-primary);
         color: white;
-        font-weight: bold;
-        border-radius: 10px;
-        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: var(--font-size-base);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-sm) var(--spacing-md);
+        transition: all var(--transition);
+        box-shadow: var(--shadow-sm);
+        cursor: pointer;
     }
+    
     .stButton>button:hover {
-        background-color: #45a049;
+        background-color: var(--color-primary-dark);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
     }
-    .css-1d391kg {
-        padding: 2rem 1rem;
+    
+    .stButton>button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
     }
-    h1 {
-        color: #2E86C1;
-        text-align: center;
+    
+    /* --- TABS --- */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: var(--spacing-xs);
+        background-color: transparent;
+        border-bottom: 2px solid var(--color-border);
     }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: transparent;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        padding: var(--spacing-sm) var(--spacing-md);
+        color: var(--color-text-light);
+        font-weight: 500;
+        border: none;
+        transition: all var(--transition);
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: var(--color-background-gray);
+        color: var(--color-text-dark);
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: white;
+        color: var(--color-primary);
+        border-bottom: 3px solid var(--color-primary);
+    }
+    
+    /* --- MÉTRICAS --- */
+    [data-testid="stMetricValue"] {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--color-text-dark);
+    }
+    
+    [data-testid="stMetricLabel"] {
+        color: var(--color-text-light);
+        font-weight: 500;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    /* --- CARDS & CONTAINERS --- */
+    .metric-card, .info-card {
+        background-color: white;
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--color-border);
+        margin: var(--spacing-sm) 0;
+        transition: all var(--transition);
+    }
+    
+    .metric-card:hover, .info-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* --- SUCCESS BOX --- */
     .success-box {
-        padding: 1rem;
-        background-color: #d4edda;
-        border-left: 5px solid #28a745;
-        border-radius: 5px;
-        margin: 1rem 0;
+        padding: var(--spacing-md);
+        background-color: var(--color-success-light);
+        border-left: 4px solid var(--color-success);
+        border-radius: var(--border-radius);
+        margin: var(--spacing-sm) 0;
     }
+    
+    /* --- INPUTS & FORMS --- */
+    .stTextInput>div>div>input,
+    .stSelectbox>div>div>select {
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        padding: var(--spacing-sm);
+        font-size: var(--font-size-base);
+        transition: all var(--transition);
+    }
+    
+    .stTextInput>div>div>input:focus,
+    .stSelectbox>div>div>select:focus {
+        border-color: var(--color-primary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    }
+    
+    /* --- FILE UPLOADER --- */
+    [data-testid="stFileUploader"] {
+        background-color: white;
+        border: 2px dashed var(--color-border);
+        border-radius: var(--border-radius);
+        padding: var(--spacing-lg);
+        transition: all var(--transition);
+    }
+    
+    [data-testid="stFileUploader"]:hover {
+        border-color: var(--color-primary);
+        background-color: rgba(0, 123, 255, 0.02);
+    }
+    
+    /* --- DATAFRAME --- */
+    .stDataFrame {
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+    
+    /* --- SIDEBAR --- */
+    [data-testid="stSidebar"] {
+        background-color: white;
+        border-right: 1px solid var(--color-border);
+    }
+    
+    [data-testid="stSidebar"] .stMarkdown {
+        color: var(--color-text-light);
+    }
+    
+    /* --- ALERTAS --- */
+    .stAlert {
+        border-radius: var(--border-radius);
+        border: none;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    /* --- OCULTAR ELEMENTOS --- */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
