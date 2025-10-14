@@ -1,6 +1,6 @@
 """
 Sistema de Autenticación y Licencias - Excel Automator Pro
-Versión: 2.3 - Con persistencia de sesión, página Mi Cuenta y soporte mobile mejorado
+Versión: 2.4 - Con persistencia real usando Firebase
 """
 
 import streamlit as st
@@ -30,31 +30,31 @@ TIER_LIMITS = {
 # ==========================================
 
 def initialize_session():
-    """Inicializa las variables de sesión necesarias y carga desde cookies si existen"""
+    """Inicializa las variables de sesión y restaura desde Firebase si existe token"""
     
-    # Intentar cargar desde cookies
+    # Obtener token de la URL si existe
+    query_params = st.query_params
+    session_token = query_params.get('session', None)
+    
     session_restored = False
-    try:
-        import streamlit_cookies_manager
-        cookies = streamlit_cookies_manager.EncryptedCookieManager(
-            prefix="excel_automator_",
-            password="ExcelAutomatorPro2025SecretKey!@#"
-        )
-        
-        if not cookies.ready():
-            st.stop()
-        
-        # Si hay sesión guardada en cookies, cargarla
-        if 'user_tier' in cookies and cookies['user_tier'] and cookies['user_tier'] not in ['None', '', 'null']:
-            st.session_state.authenticated = True
-            st.session_state.user_tier = cookies['user_tier']
-            st.session_state.user_email = cookies.get('user_email', '')
-            st.session_state.license_code = cookies.get('license_code', '')
-            st.session_state.expires = cookies.get('expires', '')
-            st.session_state.customer_name = cookies.get('customer_name', '')
-            session_restored = True
-    except Exception as e:
-        pass  # Si falla, continuar sin cookies
+    
+    # Intentar restaurar sesión desde Firebase
+    if session_token and 'authenticated' not in st.session_state:
+        try:
+            import firebase_config
+            session_data = firebase_config.get_session_data(session_token)
+            
+            if session_data:
+                st.session_state.authenticated = True
+                st.session_state.user_tier = session_data.get('user_tier')
+                st.session_state.user_email = session_data.get('user_email', '')
+                st.session_state.license_code = session_data.get('license_code', '')
+                st.session_state.expires = session_data.get('expires', '')
+                st.session_state.customer_name = session_data.get('customer_name', '')
+                st.session_state.session_token = session_token
+                session_restored = True
+        except Exception as e:
+            pass
     
     # Inicializar variables si no existen
     if 'authenticated' not in st.session_state:
@@ -75,48 +75,43 @@ def initialize_session():
         st.session_state.customer_name = None
     if 'show_account_page' not in st.session_state:
         st.session_state.show_account_page = False
+    if 'session_token' not in st.session_state:
+        st.session_state.session_token = None
     if 'session_restored' not in st.session_state:
         st.session_state.session_restored = session_restored
 
-def save_session_to_cookies():
-    """Guarda la sesión en cookies para persistencia entre recargas"""
+def create_persistent_session():
+    """Crea una sesión persistente en Firebase y actualiza la URL"""
     try:
-        import streamlit_cookies_manager
-        cookies = streamlit_cookies_manager.EncryptedCookieManager(
-            prefix="excel_automator_",
-            password="ExcelAutomatorPro2025SecretKey!@#"
+        import firebase_config
+        
+        session_token = firebase_config.create_session_token(
+            user_tier=st.session_state.user_tier,
+            user_email=st.session_state.get('user_email', ''),
+            license_code=st.session_state.get('license_code', ''),
+            expires=st.session_state.get('expires', ''),
+            customer_name=st.session_state.get('customer_name', '')
         )
         
-        if not cookies.ready():
-            return False
-        
-        # Guardar datos importantes
-        cookies['user_tier'] = str(st.session_state.get('user_tier', ''))
-        cookies['user_email'] = str(st.session_state.get('user_email', ''))
-        cookies['license_code'] = str(st.session_state.get('license_code', ''))
-        cookies['expires'] = str(st.session_state.get('expires', ''))
-        cookies['customer_name'] = str(st.session_state.get('customer_name', ''))
-        cookies.save()
-        return True
+        if session_token:
+            st.session_state.session_token = session_token
+            # Actualizar URL con el token
+            st.query_params['session'] = session_token
+            return True
+        return False
     except Exception as e:
+        print(f"Error creating session: {str(e)}")
         return False
 
-def clear_session_cookies():
-    """Limpia las cookies de sesión al cerrar sesión"""
+def delete_persistent_session():
+    """Elimina la sesión persistente de Firebase"""
     try:
-        import streamlit_cookies_manager
-        cookies = streamlit_cookies_manager.EncryptedCookieManager(
-            prefix="excel_automator_",
-            password="ExcelAutomatorPro2025SecretKey!@#"
-        )
-        
-        if not cookies.ready():
-            return
-        
-        # Borrar todas las cookies
-        for key in list(cookies.keys()):
-            del cookies[key]
-        cookies.save()
+        if st.session_state.get('session_token'):
+            import firebase_config
+            firebase_config.delete_session_token(st.session_state.session_token)
+            # Limpiar query params
+            if 'session' in st.query_params:
+                del st.query_params['session']
     except Exception as e:
         pass
 
@@ -378,13 +373,6 @@ def show_auth_screen():
     st.markdown('<p class="big-title">📊 Excel Automator Pro</p>', unsafe_allow_html=True)
     st.markdown('<p class="subtitle">Automatiza tu análisis de datos en segundos</p>', unsafe_allow_html=True)
     
-    # AVISO IMPORTANTE SOBRE NAVEGADOR
-    st.warning("""
-    📱 **Importante para móviles:** Para que tu sesión persista entre visitas, usa el navegador en **modo normal** (no privado/incógnito).
-    
-    El modo incógnito borra tu sesión al cerrar la app.
-    """)
-    
     st.info("👋 **¡Bienvenido!** Elige tu plan para comenzar:")
     
     tab1, tab2 = st.tabs(["🆓 Plan Gratuito", "💎 Plan Premium"])
@@ -405,9 +393,7 @@ def show_auth_screen():
             if st.button("🚀 Comenzar Gratis", key="free_button", type="primary"):
                 st.session_state.authenticated = True
                 st.session_state.user_tier = 'free'
-                saved = save_session_to_cookies()
-                if saved:
-                    st.success("✅ Sesión guardada")
+                create_persistent_session()
                 st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
@@ -466,13 +452,13 @@ def show_auth_screen():
                         st.session_state.expires = result.get('expires', '')
                         st.session_state.customer_name = result.get('customerName', 'Usuario Premium')
                         
-                        saved = save_session_to_cookies()
-                        
-                        st.success("✅ ¡Código Premium activado correctamente!")
-                        if saved:
-                            st.info("💾 Sesión guardada - No necesitarás ingresar el código de nuevo")
+                        if create_persistent_session():
+                            st.success("✅ ¡Código Premium activado y sesión guardada!")
+                            st.info("💾 Tu sesión persistirá incluso si cierras y abres la app")
                         else:
-                            st.warning("⚠️ No se pudo guardar la sesión. Usa navegador normal (no incógnito)")
+                            st.success("✅ ¡Código Premium activado!")
+                            st.warning("⚠️ No se pudo guardar la sesión persistente")
+                        
                         st.balloons()
                         st.rerun()
                     else:
@@ -483,10 +469,8 @@ def show_auth_screen():
 def show_user_info_sidebar():
     """Muestra información del usuario en el sidebar"""
     
-    # Instrucciones para mobile en la parte superior
-    st.sidebar.info("""
-    📱 **En móvil:** Si no ves este menú, busca el botón ☰ (tres líneas) arriba a la izquierda.
-    """)
+    # Instrucciones para mobile
+    st.sidebar.info("📱 **En móvil:** Busca el botón ☰ arriba a la izquierda")
     
     st.sidebar.markdown("---")
     tier_name = TIER_LIMITS[st.session_state.user_tier]['name']
@@ -494,7 +478,7 @@ def show_user_info_sidebar():
     
     # Mostrar si la sesión fue restaurada
     if st.session_state.get('session_restored', False):
-        st.sidebar.success("✅ Sesión restaurada")
+        st.sidebar.success("✅ Sesión restaurada automáticamente")
     
     if st.session_state.user_tier == 'free':
         reset_daily_counter()
@@ -508,7 +492,7 @@ def show_user_info_sidebar():
         st.sidebar.info("💎 **Actualiza a Premium**\n\nAnálisis ilimitados + Todas las funciones")
         if st.sidebar.button("🚀 Ver Planes Premium"):
             st.session_state.authenticated = False
-            clear_session_cookies()
+            delete_persistent_session()
             st.rerun()
     else:
         st.sidebar.success("✅ Acceso Premium Activo")
@@ -526,7 +510,7 @@ def show_user_info_sidebar():
     
     st.sidebar.markdown("---")
     if st.sidebar.button("🚪 Cerrar Sesión"):
-        clear_session_cookies()
+        delete_persistent_session()
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
@@ -539,3 +523,28 @@ def require_auth():
         return False
     show_user_info_sidebar()
     return True
+```
+
+**Commit ambos archivos:**
+- `firebase_config.py`: "Add session token management"
+- `auth.py`: "Use Firebase tokens for persistent sessions"
+
+---
+
+# ✅ CÓMO FUNCIONA AHORA:
+
+1. **Usuario activa código Premium** → Se crea un token en Firebase
+2. **Token se agrega a la URL** → `tu-app.streamlit.app/?session=abc123...`
+3. **Usuario cierra y vuelve abrir** → El token está en la URL
+4. **App lee el token de la URL** → Restaura la sesión desde Firebase
+5. **✅ Sesión persiste** - Incluso en modo incógnito mientras tengas la URL
+
+---
+
+# 📱 PARA EL USUARIO:
+
+**Si guarda la URL completa como marcador/favorito**, su sesión persistirá para siempre (30 días de validez del token).
+
+**URL de ejemplo:**
+```
+https://tu-app.streamlit.app/?session=a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6
