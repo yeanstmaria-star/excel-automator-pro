@@ -5,7 +5,8 @@ Configuración de Firebase para autenticación Premium
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
-from datetime import datetime
+from datetime import datetime, timedelta
+import uuid
 
 
 def initialize_firebase():
@@ -18,7 +19,6 @@ def initialize_firebase():
             private_key = firebase_creds["private_key"]
             
             # Arreglar formato de la private_key
-            # Reemplazar \\n con \n real si es necesario
             if "\\n" in private_key:
                 private_key = private_key.replace("\\n", "\n")
             
@@ -98,12 +98,38 @@ def check_premium_code(code):
     except Exception as e:
         return False, f"Error: {str(e)}"
 
+
+def get_license_info(code):
+    """
+    Obtiene información completa de una licencia
+    
+    Returns:
+        dict: Información de la licencia o None si no existe
+    """
+    try:
+        db = get_firestore_client()
+        
+        if db is None:
+            return None
+        
+        code = code.strip().upper()
+        
+        doc_ref = db.collection('premium_codes').document(code)
+        doc = doc_ref.get()
+        
+        if not doc.exists:
+            return None
+        
+        return doc.to_dict()
+        
+    except Exception as e:
+        print(f"Error getting license info: {str(e)}")
+        return None
+
+
 # ==========================================
 # GESTIÓN DE SESIONES PERSISTENTES
 # ==========================================
-
-import uuid
-from datetime import datetime, timedelta
 
 def create_session_token(user_tier, user_email, license_code, expires, customer_name):
     """Crea un token de sesión y lo guarda en Firebase"""
@@ -119,11 +145,14 @@ def create_session_token(user_tier, user_email, license_code, expires, customer_
             'expires': expires,
             'customer_name': customer_name,
             'created_at': datetime.now().isoformat(),
-            'expires_at': (datetime.now() + timedelta(days=30)).isoformat()  # Sesión válida 30 días
+            'expires_at': (datetime.now() + timedelta(days=30)).isoformat()
         }
         
         # Guardar en Firebase
-        db = get_db()
+        db = get_firestore_client()
+        if db is None:
+            return None
+            
         db.collection('sessions').document(session_token).set(session_data)
         
         return session_token
@@ -131,13 +160,17 @@ def create_session_token(user_tier, user_email, license_code, expires, customer_
         print(f"Error creating session: {str(e)}")
         return None
 
+
 def get_session_data(session_token):
     """Recupera los datos de sesión desde Firebase"""
     try:
         if not session_token:
             return None
         
-        db = get_db()
+        db = get_firestore_client()
+        if db is None:
+            return None
+            
         doc = db.collection('sessions').document(session_token).get()
         
         if not doc.exists:
@@ -146,16 +179,19 @@ def get_session_data(session_token):
         session_data = doc.to_dict()
         
         # Verificar si la sesión expiró
-        expires_at = datetime.fromisoformat(session_data.get('expires_at', ''))
-        if datetime.now() > expires_at:
-            # Sesión expirada, eliminarla
-            db.collection('sessions').document(session_token).delete()
-            return None
+        expires_at_str = session_data.get('expires_at', '')
+        if expires_at_str:
+            expires_at = datetime.fromisoformat(expires_at_str)
+            if datetime.now() > expires_at:
+                # Sesión expirada, eliminarla
+                db.collection('sessions').document(session_token).delete()
+                return None
         
         return session_data
     except Exception as e:
         print(f"Error getting session: {str(e)}")
         return None
+
 
 def delete_session_token(session_token):
     """Elimina un token de sesión de Firebase"""
@@ -163,7 +199,10 @@ def delete_session_token(session_token):
         if not session_token:
             return
         
-        db = get_db()
+        db = get_firestore_client()
+        if db is None:
+            return
+            
         db.collection('sessions').document(session_token).delete()
     except Exception as e:
         print(f"Error deleting session: {str(e)}")
