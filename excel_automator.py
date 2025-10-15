@@ -74,7 +74,7 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CSS MODERNO + BOTÓN SIDEBAR MÓVIL (SIN GITHUB)
+# CSS + BOTÓN FLOTANTE PERSONALIZADO
 # =====================================================================
 
 st.markdown("""
@@ -207,7 +207,7 @@ st.markdown("""
         visibility: hidden;
     }
     
-    /* OCULTAR COMPLETAMENTE EL BOTÓN DE GITHUB/DEPLOY */
+    /* OCULTAR BOTÓN DE GITHUB */
     [data-testid="stHeader"],
     [data-testid="stToolbar"],
     header[data-testid="stHeader"],
@@ -216,9 +216,6 @@ st.markdown("""
     div[data-testid="stStatusWidget"] {
         display: none !important;
         visibility: hidden !important;
-        opacity: 0 !important;
-        height: 0 !important;
-        pointer-events: none !important;
     }
     
     ::-webkit-scrollbar {
@@ -231,177 +228,205 @@ st.markdown("""
         border-radius: 4px;
     }
     
-    /* BOTÓN SIDEBAR MÓVIL - VERDE Y VISIBLE */
-    section[data-testid="stSidebar"] > div:first-child button,
-    div[data-testid="collapsedControl"] button,
-    button[aria-label*="sidebar" i],
-    button[title*="sidebar" i] {
-        background: linear-gradient(135deg, #10b981, #14b8a6) !important;
-        color: white !important;
-        border: 3px solid white !important;
-        border-radius: 50% !important;
-        padding: 12px !important;
-        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6) !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+    /* BOTÓN FLOTANTE PERSONALIZADO PARA MÓVIL */
+    #custom-sidebar-button {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #10b981, #14b8a6);
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 999999;
+        transition: all 0.3s ease;
+        animation: floatButton 2s ease-in-out infinite;
     }
     
-    section[data-testid="stSidebar"] > div:first-child button svg,
-    div[data-testid="collapsedControl"] svg,
-    button[aria-label*="sidebar" i] svg {
-        stroke: white !important;
-        stroke-width: 3px !important;
-        fill: white !important;
-        width: 24px !important;
-        height: 24px !important;
+    #custom-sidebar-button:active {
+        transform: scale(0.95);
+    }
+    
+    #custom-sidebar-button svg {
+        width: 36px;
+        height: 36px;
+    }
+    
+    #custom-sidebar-button::before {
+        content: "MENÚ";
+        position: absolute;
+        bottom: 100%;
+        margin-bottom: 8px;
+        background: rgba(16, 185, 129, 0.95);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    @keyframes floatButton {
+        0%, 100% {
+            transform: translateY(0);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6);
+        }
+        50% {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.8);
+        }
     }
     
     @media (max-width: 768px) {
-        /* Botón del sidebar GRANDE y en esquina inferior derecha */
-        section[data-testid="stSidebar"] > div:first-child button,
-        div[data-testid="collapsedControl"] button,
-        button[aria-label*="sidebar" i] {
-            position: fixed !important;
-            bottom: 24px !important;
-            right: 24px !important;
-            width: 70px !important;
-            height: 70px !important;
-            z-index: 999999 !important;
-            animation: pulseSidebar 2s ease-in-out infinite !important;
-        }
-        
-        @keyframes pulseSidebar {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6);
-            }
-            50% {
-                transform: scale(1.08);
-                box-shadow: 0 12px 32px rgba(16, 185, 129, 0.9);
-            }
-        }
-        
-        section[data-testid="stSidebar"] > div:first-child button svg,
-        div[data-testid="collapsedControl"] svg,
-        button[aria-label*="sidebar" i] svg {
-            width: 36px !important;
-            height: 36px !important;
-        }
-        
-        /* Etiqueta flotante */
-        section[data-testid="stSidebar"] > div:first-child button::before,
-        div[data-testid="collapsedControl"] button::before {
-            content: "MENÚ" !important;
-            position: absolute !important;
-            bottom: 100% !important;
-            margin-bottom: 8px !important;
-            background: rgba(16, 185, 129, 0.95) !important;
-            color: white !important;
-            padding: 6px 14px !important;
-            border-radius: 12px !important;
-            font-size: 12px !important;
-            font-weight: 700 !important;
-            white-space: nowrap !important;
-            display: block !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-        }
-        
-        /* Asegurar que el contenedor sea visible */
-        section[data-testid="stSidebar"] > div:first-child,
-        div[data-testid="collapsedControl"] {
-            display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
+        #custom-sidebar-button {
+            display: flex !important;
         }
     }
 </style>
 
+<div id="custom-sidebar-button">
+    <svg viewBox="0 0 24 24" fill="none">
+        <path d="M3 12h18M3 6h18M3 18h18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</div>
+
 <script>
 (function() {
-    // Ocultar definitivamente el botón de GitHub
-    function hideGitHubButton() {
-        const gitHubSelectors = [
+    console.log('Inicializando botón flotante...');
+    
+    // Ocultar botón de GitHub
+    function hideGitHub() {
+        const selectors = [
             '[data-testid="stHeader"]',
             '[data-testid="stToolbar"]',
-            'header[data-testid="stHeader"]',
             'button[data-testid="stAppDeployButton"]',
             '[data-testid="stDecoration"]',
             '[data-testid="stStatusWidget"]'
         ];
         
-        gitHubSelectors.forEach(selector => {
-            document.querySelectorAll(selector).forEach(el => {
+        selectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(el => {
                 if (el) {
                     el.style.display = 'none';
-                    el.style.visibility = 'hidden';
-                    el.style.opacity = '0';
-                    el.style.pointerEvents = 'none';
                     el.remove();
                 }
             });
         });
     }
     
-    // Hacer visible el botón del sidebar
-    function showSidebarButton() {
-        if (window.innerWidth <= 768) {
-            const sidebarSelectors = [
-                'section[data-testid="stSidebar"] > div:first-child button',
-                'div[data-testid="collapsedControl"] button',
-                'button[aria-label*="sidebar"]',
-                'button[title*="sidebar"]'
-            ];
+    // Función para abrir/cerrar el sidebar
+    function toggleSidebar() {
+        console.log('Toggle sidebar clicked');
+        
+        // Buscar el botón nativo del sidebar
+        const sidebarSelectors = [
+            'section[data-testid="stSidebar"] > div:first-child button',
+            'button[kind="header"]',
+            'button[aria-label*="sidebar" i]',
+            'button[title*="sidebar" i]',
+            '[data-testid="collapsedControl"] button'
+        ];
+        
+        let found = false;
+        for (const selector of sidebarSelectors) {
+            const buttons = document.querySelectorAll(selector);
+            console.log(`Selector ${selector}: encontrados ${buttons.length}`);
             
-            sidebarSelectors.forEach(sel => {
-                document.querySelectorAll(sel).forEach(btn => {
-                    // Verificar que no sea el botón de GitHub
-                    const isNotGitHub = !btn.closest('[data-testid="stHeader"]') && 
-                                       !btn.closest('[data-testid="stToolbar"]') &&
-                                       !btn.hasAttribute('data-testid');
-                    
-                    if (isNotGitHub && btn) {
-                        btn.style.cssText = 'position: fixed !important; bottom: 24px !important; right: 24px !important; width: 70px !important; height: 70px !important; z-index: 999999 !important; background: linear-gradient(135deg, #10b981, #14b8a6) !important; color: white !important; border: 3px solid white !important; border-radius: 50% !important; box-shadow: 0 8px 24px rgba(16,185,129,0.6) !important; display: flex !important; align-items: center !important; justify-content: center !important; opacity: 1 !important; visibility: visible !important;';
-                        
-                        // Asegurar que el SVG sea visible
-                        const svg = btn.querySelector('svg');
-                        if (svg) {
-                            svg.style.cssText = 'width: 36px !important; height: 36px !important; stroke: white !important; fill: white !important;';
-                        }
-                    }
-                });
-            });
+            for (const btn of buttons) {
+                // Verificar que no sea el botón de GitHub
+                if (!btn.closest('[data-testid="stHeader"]') && 
+                    !btn.closest('[data-testid="stToolbar"]')) {
+                    console.log('Haciendo clic en botón del sidebar');
+                    btn.click();
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        
+        // Si no se encontró el botón, manipular directamente el sidebar
+        if (!found) {
+            console.log('Manipulando sidebar directamente');
+            const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+            if (sidebar) {
+                const currentTransform = sidebar.style.transform;
+                if (currentTransform === 'translateX(-100%)' || currentTransform === '') {
+                    sidebar.style.transform = 'translateX(0)';
+                    sidebar.style.transition = 'transform 0.3s ease';
+                } else {
+                    sidebar.style.transform = 'translateX(-100%)';
+                }
+            }
         }
     }
     
-    // Ejecutar funciones
-    hideGitHubButton();
-    showSidebarButton();
+    // Configurar el botón personalizado
+    function setupCustomButton() {
+        const customBtn = document.getElementById('custom-sidebar-button');
+        
+        if (customBtn && !customBtn.hasAttribute('data-initialized')) {
+            console.log('Configurando botón personalizado');
+            customBtn.setAttribute('data-initialized', 'true');
+            
+            // Click normal
+            customBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleSidebar();
+            });
+            
+            // Touch para móvil
+            customBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleSidebar();
+            }, { passive: false });
+            
+            console.log('Botón personalizado configurado');
+        }
+    }
+    
+    // Ejecutar inmediatamente
+    hideGitHub();
+    setupCustomButton();
     
     // Observar cambios en el DOM
-    const observer = new MutationObserver(() => {
-        hideGitHubButton();
-        showSidebarButton();
+    const observer = new MutationObserver(function() {
+        hideGitHub();
+        setupCustomButton();
     });
     
-    observer.observe(document.body, { 
-        childList: true, 
-        subtree: true 
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
     });
     
     // Ejecutar periódicamente
-    setInterval(() => {
-        hideGitHubButton();
-        showSidebarButton();
-    }, 300);
+    setInterval(function() {
+        hideGitHub();
+        setupCustomButton();
+    }, 500);
     
-    // Ejecutar al cargar
-    window.addEventListener('load', () => {
-        hideGitHubButton();
-        showSidebarButton();
+    // Al terminar de cargar
+    window.addEventListener('load', function() {
+        console.log('Página cargada');
+        hideGitHub();
+        setupCustomButton();
     });
+    
+    // Después de un delay
+    setTimeout(function() {
+        hideGitHub();
+        setupCustomButton();
+        console.log('Setup completado después de delay');
+    }, 1000);
 })();
 </script>
 """, unsafe_allow_html=True)
@@ -826,5 +851,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
