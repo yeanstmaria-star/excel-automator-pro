@@ -74,7 +74,7 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CSS MODERNO + BOTÓN SIDEBAR MÓVIL
+# CSS MODERNO + BOTÓN SIDEBAR MÓVIL (SIN GITHUB)
 # =====================================================================
 
 st.markdown("""
@@ -203,8 +203,22 @@ st.markdown("""
         border-color: var(--accent-color);
     }
     
-    #MainMenu, footer, header {
+    #MainMenu, footer {
         visibility: hidden;
+    }
+    
+    /* OCULTAR COMPLETAMENTE EL BOTÓN DE GITHUB/DEPLOY */
+    [data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    header[data-testid="stHeader"],
+    button[data-testid="stAppDeployButton"],
+    div[data-testid="stDecoration"],
+    div[data-testid="stStatusWidget"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        pointer-events: none !important;
     }
     
     ::-webkit-scrollbar {
@@ -217,88 +231,177 @@ st.markdown("""
         border-radius: 4px;
     }
     
-    /* BOTÓN SIDEBAR MÓVIL - SUPER VISIBLE */
-    button[kind="header"],
-    button[data-testid="baseButton-header"],
-    button[data-testid="collapsedControl"] {
-        background: linear-gradient(135deg, #ff6b35, #ffa500) !important;
+    /* BOTÓN SIDEBAR MÓVIL - VERDE Y VISIBLE */
+    section[data-testid="stSidebar"] > div:first-child button,
+    div[data-testid="collapsedControl"] button,
+    button[aria-label*="sidebar" i],
+    button[title*="sidebar" i] {
+        background: linear-gradient(135deg, #10b981, #14b8a6) !important;
         color: white !important;
         border: 3px solid white !important;
-        border-radius: 12px !important;
+        border-radius: 50% !important;
         padding: 12px !important;
-        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.6) !important;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6) !important;
         opacity: 1 !important;
         visibility: visible !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
-    button[kind="header"] svg,
-    button[data-testid="baseButton-header"] svg,
-    button[data-testid="collapsedControl"] svg {
+    section[data-testid="stSidebar"] > div:first-child button svg,
+    div[data-testid="collapsedControl"] svg,
+    button[aria-label*="sidebar" i] svg {
         stroke: white !important;
         stroke-width: 3px !important;
         fill: white !important;
+        width: 24px !important;
+        height: 24px !important;
     }
     
     @media (max-width: 768px) {
-        button[kind="header"],
-        button[data-testid="baseButton-header"],
-        button[data-testid="collapsedControl"] {
+        /* Botón del sidebar GRANDE y en esquina inferior derecha */
+        section[data-testid="stSidebar"] > div:first-child button,
+        div[data-testid="collapsedControl"] button,
+        button[aria-label*="sidebar" i] {
             position: fixed !important;
-            top: 16px !important;
-            left: 16px !important;
-            width: 60px !important;
-            height: 60px !important;
+            bottom: 24px !important;
+            right: 24px !important;
+            width: 70px !important;
+            height: 70px !important;
             z-index: 999999 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            animation: pulse 2s infinite !important;
+            animation: pulseSidebar 2s ease-in-out infinite !important;
         }
         
-        @keyframes pulse {
+        @keyframes pulseSidebar {
             0%, 100% {
                 transform: scale(1);
-                box-shadow: 0 8px 24px rgba(255, 107, 53, 0.6);
+                box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6);
             }
             50% {
-                transform: scale(1.05);
-                box-shadow: 0 12px 32px rgba(255, 107, 53, 0.8);
+                transform: scale(1.08);
+                box-shadow: 0 12px 32px rgba(16, 185, 129, 0.9);
             }
         }
         
-        button[kind="header"] svg,
-        button[data-testid="baseButton-header"] svg,
-        button[data-testid="collapsedControl"] svg {
-            width: 32px !important;
-            height: 32px !important;
+        section[data-testid="stSidebar"] > div:first-child button svg,
+        div[data-testid="collapsedControl"] svg,
+        button[aria-label*="sidebar" i] svg {
+            width: 36px !important;
+            height: 36px !important;
+        }
+        
+        /* Etiqueta flotante */
+        section[data-testid="stSidebar"] > div:first-child button::before,
+        div[data-testid="collapsedControl"] button::before {
+            content: "MENÚ" !important;
+            position: absolute !important;
+            bottom: 100% !important;
+            margin-bottom: 8px !important;
+            background: rgba(16, 185, 129, 0.95) !important;
+            color: white !important;
+            padding: 6px 14px !important;
+            border-radius: 12px !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            white-space: nowrap !important;
+            display: block !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+        }
+        
+        /* Asegurar que el contenedor sea visible */
+        section[data-testid="stSidebar"] > div:first-child,
+        div[data-testid="collapsedControl"] {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
     }
 </style>
 
 <script>
 (function() {
-    function makeSidebarButtonVisible() {
+    // Ocultar definitivamente el botón de GitHub
+    function hideGitHubButton() {
+        const gitHubSelectors = [
+            '[data-testid="stHeader"]',
+            '[data-testid="stToolbar"]',
+            'header[data-testid="stHeader"]',
+            'button[data-testid="stAppDeployButton"]',
+            '[data-testid="stDecoration"]',
+            '[data-testid="stStatusWidget"]'
+        ];
+        
+        gitHubSelectors.forEach(selector => {
+            document.querySelectorAll(selector).forEach(el => {
+                if (el) {
+                    el.style.display = 'none';
+                    el.style.visibility = 'hidden';
+                    el.style.opacity = '0';
+                    el.style.pointerEvents = 'none';
+                    el.remove();
+                }
+            });
+        });
+    }
+    
+    // Hacer visible el botón del sidebar
+    function showSidebarButton() {
         if (window.innerWidth <= 768) {
-            const selectors = [
-                'button[kind="header"]',
-                'button[data-testid="baseButton-header"]',
-                'button[data-testid="collapsedControl"]'
+            const sidebarSelectors = [
+                'section[data-testid="stSidebar"] > div:first-child button',
+                'div[data-testid="collapsedControl"] button',
+                'button[aria-label*="sidebar"]',
+                'button[title*="sidebar"]'
             ];
             
-            selectors.forEach(sel => {
+            sidebarSelectors.forEach(sel => {
                 document.querySelectorAll(sel).forEach(btn => {
-                    if (btn) {
-                        btn.style.cssText = 'position: fixed !important; top: 16px !important; left: 16px !important; width: 60px !important; height: 60px !important; z-index: 999999 !important; background: linear-gradient(135deg, #ff6b35, #ffa500) !important; color: white !important; border: 3px solid white !important; border-radius: 12px !important; box-shadow: 0 8px 24px rgba(255,107,53,0.6) !important; display: flex !important; align-items: center !important; justify-content: center !important; opacity: 1 !important; visibility: visible !important;';
+                    // Verificar que no sea el botón de GitHub
+                    const isNotGitHub = !btn.closest('[data-testid="stHeader"]') && 
+                                       !btn.closest('[data-testid="stToolbar"]') &&
+                                       !btn.hasAttribute('data-testid');
+                    
+                    if (isNotGitHub && btn) {
+                        btn.style.cssText = 'position: fixed !important; bottom: 24px !important; right: 24px !important; width: 70px !important; height: 70px !important; z-index: 999999 !important; background: linear-gradient(135deg, #10b981, #14b8a6) !important; color: white !important; border: 3px solid white !important; border-radius: 50% !important; box-shadow: 0 8px 24px rgba(16,185,129,0.6) !important; display: flex !important; align-items: center !important; justify-content: center !important; opacity: 1 !important; visibility: visible !important;';
+                        
+                        // Asegurar que el SVG sea visible
+                        const svg = btn.querySelector('svg');
+                        if (svg) {
+                            svg.style.cssText = 'width: 36px !important; height: 36px !important; stroke: white !important; fill: white !important;';
+                        }
                     }
                 });
             });
         }
     }
     
-    makeSidebarButtonVisible();
-    new MutationObserver(makeSidebarButtonVisible).observe(document.body, {childList: true, subtree: true});
-    window.addEventListener('load', makeSidebarButtonVisible);
-    setInterval(makeSidebarButtonVisible, 500);
+    // Ejecutar funciones
+    hideGitHubButton();
+    showSidebarButton();
+    
+    // Observar cambios en el DOM
+    const observer = new MutationObserver(() => {
+        hideGitHubButton();
+        showSidebarButton();
+    });
+    
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+    });
+    
+    // Ejecutar periódicamente
+    setInterval(() => {
+        hideGitHubButton();
+        showSidebarButton();
+    }, 300);
+    
+    // Ejecutar al cargar
+    window.addEventListener('load', () => {
+        hideGitHubButton();
+        showSidebarButton();
+    });
 })();
 </script>
 """, unsafe_allow_html=True)
@@ -723,3 +826,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
