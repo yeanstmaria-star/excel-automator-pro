@@ -410,12 +410,15 @@ st.markdown("""
         background: #a0aec0;
     }
 
-    /* ========================================
-       BOTÓN SIDEBAR MOBILE - SUPER VISIBLE
+   /* ========================================
+       BOTÓN SIDEBAR MOBILE - FORZAR VISIBILIDAD
        ======================================== */
     
-    /* Botón hamburguesa del sidebar */
-    button[kind="header"] {
+    /* Selector más específico para el botón del sidebar */
+    [data-testid="collapsedControl"],
+    button[kind="header"],
+    button[data-testid="collapsedControl"],
+    section[data-testid="stSidebar"] + div button[kind="header"] {
         background: linear-gradient(135deg, #ff6b35 0%, #ffa500 100%) !important;
         color: white !important;
         border: 3px solid white !important;
@@ -423,72 +426,106 @@ st.markdown("""
         padding: 12px !important;
         box-shadow: 0 8px 24px rgba(255, 107, 53, 0.5) !important;
         transition: all 0.3s ease !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: flex !important;
     }
     
+    [data-testid="collapsedControl"]:hover,
     button[kind="header"]:hover {
         background: linear-gradient(135deg, #ffa500 0%, #ff6b35 100%) !important;
         transform: scale(1.1) !important;
         box-shadow: 0 12px 32px rgba(255, 165, 0, 0.6) !important;
     }
     
-    /* Icono del menú hamburguesa más visible */
+    /* Icono del menú */
+    [data-testid="collapsedControl"] svg,
     button[kind="header"] svg {
         stroke: white !important;
         stroke-width: 3px !important;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
+        fill: white !important;
+        color: white !important;
     }
     
-    /* En dispositivos móviles: botón grande y fijo */
+    /* MOBILE: Botón fijo y grande */
     @media (max-width: 768px) {
+        [data-testid="collapsedControl"],
         button[kind="header"] {
             position: fixed !important;
             top: 12px !important;
             left: 12px !important;
             width: 56px !important;
             height: 56px !important;
-            z-index: 999999 !important;
+            min-width: 56px !important;
+            min-height: 56px !important;
+            z-index: 999999999 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            animation: pulse 2s infinite !important;
+            animation: pulse-mobile 2s infinite !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
         }
         
-        /* Animación de pulso para llamar la atención */
-        @keyframes pulse {
+        @keyframes pulse-mobile {
             0%, 100% {
                 box-shadow: 0 8px 24px rgba(255, 107, 53, 0.5);
+                transform: scale(1);
             }
             50% {
                 box-shadow: 0 8px 32px rgba(255, 107, 53, 0.8);
+                transform: scale(1.05);
             }
         }
         
-        /* Icono más grande en móvil */
+        [data-testid="collapsedControl"] svg,
         button[kind="header"] svg {
             width: 28px !important;
             height: 28px !important;
         }
-    }
-    
-    /* Indicador visual adicional si el sidebar está cerrado */
-    @media (max-width: 768px) {
+        
+        /* Punto rojo indicador */
+        [data-testid="collapsedControl"]::after,
         button[kind="header"]::after {
-            content: "";
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 12px;
-            height: 12px;
-            background-color: #ef4444;
-            border: 2px solid white;
-            border-radius: 50%;
-            animation: blink 1.5s infinite;
+            content: "" !important;
+            position: absolute !important;
+            top: -4px !important;
+            right: -4px !important;
+            width: 12px !important;
+            height: 12px !important;
+            background-color: #ef4444 !important;
+            border: 2px solid white !important;
+            border-radius: 50% !important;
+            animation: blink-mobile 1.5s infinite !important;
+            z-index: 1 !important;
         }
         
-        @keyframes blink {
+        @keyframes blink-mobile {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
+    }
+    
+    /* Forzar visibilidad en TODOS los estados */
+    [data-testid="stSidebar"][aria-expanded="false"] + * [data-testid="collapsedControl"],
+    [data-testid="stSidebar"][aria-expanded="false"] + * button[kind="header"] {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* Asegurar que nada lo oculte */
+    * {
+        /* Evitar que otros elementos oculten el botón */
+    }
+    
+    [data-testid="collapsedControl"],
+    button[kind="header"] {
+        /* Forzar que esté siempre visible */
+        clip-path: none !important;
+        mask: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -946,4 +983,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
