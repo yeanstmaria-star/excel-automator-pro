@@ -29,7 +29,7 @@ st.set_page_config(
     page_title="Excel Automator Pro",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # ========================================
@@ -410,15 +410,17 @@ st.markdown("""
         background: #a0aec0;
     }
 
-   /* ========================================
-       BOTÓN SIDEBAR MOBILE - FORZAR VISIBILIDAD
+    /* ========================================
+       BOTÓN SIDEBAR MOBILE - FORZADO VISIBLE
        ======================================== */
     
-    /* Selector más específico para el botón del sidebar */
-    [data-testid="collapsedControl"],
+    /* Todos los posibles selectores del botón */
     button[kind="header"],
+    button[data-testid="baseButton-header"],
     button[data-testid="collapsedControl"],
-    section[data-testid="stSidebar"] + div button[kind="header"] {
+    section[data-testid="stSidebar"] button[kind="header"],
+    [data-testid="stSidebarNav"] button,
+    div[data-testid="stSidebarCollapsedControl"] button {
         background: linear-gradient(135deg, #ff6b35 0%, #ffa500 100%) !important;
         color: white !important;
         border: 3px solid white !important;
@@ -429,29 +431,34 @@ st.markdown("""
         opacity: 1 !important;
         visibility: visible !important;
         display: flex !important;
+        pointer-events: auto !important;
     }
     
-    [data-testid="collapsedControl"]:hover,
-    button[kind="header"]:hover {
+    /* Hover state */
+    button[kind="header"]:hover,
+    button[data-testid="baseButton-header"]:hover,
+    button[data-testid="collapsedControl"]:hover {
         background: linear-gradient(135deg, #ffa500 0%, #ff6b35 100%) !important;
         transform: scale(1.1) !important;
         box-shadow: 0 12px 32px rgba(255, 165, 0, 0.6) !important;
     }
     
-    /* Icono del menú */
-    [data-testid="collapsedControl"] svg,
-    button[kind="header"] svg {
+    /* Iconos */
+    button[kind="header"] svg,
+    button[data-testid="baseButton-header"] svg,
+    button[data-testid="collapsedControl"] svg {
         stroke: white !important;
         stroke-width: 3px !important;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
         fill: white !important;
-        color: white !important;
     }
     
-    /* MOBILE: Botón fijo y grande */
+    /* Estilos específicos para móvil */
     @media (max-width: 768px) {
-        [data-testid="collapsedControl"],
-        button[kind="header"] {
+        button[kind="header"],
+        button[data-testid="baseButton-header"],
+        button[data-testid="collapsedControl"],
+        div[data-testid="stSidebarCollapsedControl"] button {
             position: fixed !important;
             top: 12px !important;
             left: 12px !important;
@@ -459,17 +466,18 @@ st.markdown("""
             height: 56px !important;
             min-width: 56px !important;
             min-height: 56px !important;
-            z-index: 999999999 !important;
+            z-index: 999999 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            animation: pulse-mobile 2s infinite !important;
             opacity: 1 !important;
             visibility: visible !important;
             pointer-events: auto !important;
+            animation: mobilePulse 2s infinite !important;
         }
         
-        @keyframes pulse-mobile {
+        /* Animación de pulso */
+        @keyframes mobilePulse {
             0%, 100% {
                 box-shadow: 0 8px 24px rgba(255, 107, 53, 0.5);
                 transform: scale(1);
@@ -480,15 +488,18 @@ st.markdown("""
             }
         }
         
-        [data-testid="collapsedControl"] svg,
-        button[kind="header"] svg {
+        /* Icono más grande */
+        button[kind="header"] svg,
+        button[data-testid="baseButton-header"] svg,
+        button[data-testid="collapsedControl"] svg {
             width: 28px !important;
             height: 28px !important;
         }
         
-        /* Punto rojo indicador */
-        [data-testid="collapsedControl"]::after,
-        button[kind="header"]::after {
+        /* Punto rojo parpadeante */
+        button[kind="header"]::after,
+        button[data-testid="baseButton-header"]::after,
+        button[data-testid="collapsedControl"]::after {
             content: "" !important;
             position: absolute !important;
             top: -4px !important;
@@ -498,35 +509,87 @@ st.markdown("""
             background-color: #ef4444 !important;
             border: 2px solid white !important;
             border-radius: 50% !important;
-            animation: blink-mobile 1.5s infinite !important;
-            z-index: 1 !important;
+            animation: mobileBlink 1.5s infinite !important;
+            display: block !important;
         }
         
-        @keyframes blink-mobile {
+        @keyframes mobileBlink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
+        
+        /* Forzar el contenedor del botón visible */
+        div[data-testid="stSidebarCollapsedControl"],
+        section[data-testid="stSidebar"] > div:first-child {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+    }
+
+    </style>
+
+<script>
+// Forzar visibilidad del botón del sidebar en móvil
+(function() {
+    function forceButtonVisible() {
+        // Si estamos en móvil
+        if (window.innerWidth <= 768) {
+            // Buscar todos los posibles botones
+            const selectors = [
+                'button[kind="header"]',
+                'button[data-testid="baseButton-header"]',
+                'button[data-testid="collapsedControl"]',
+                'div[data-testid="stSidebarCollapsedControl"] button'
+            ];
+            
+            selectors.forEach(selector => {
+                const buttons = document.querySelectorAll(selector);
+                buttons.forEach(button => {
+                    if (button) {
+                        button.style.cssText = `
+                            position: fixed !important;
+                            top: 12px !important;
+                            left: 12px !important;
+                            width: 56px !important;
+                            height: 56px !important;
+                            z-index: 999999 !important;
+                            display: flex !important;
+                            opacity: 1 !important;
+                            visibility: visible !important;
+                            pointer-events: auto !important;
+                            background: linear-gradient(135deg, #ff6b35 0%, #ffa500 100%) !important;
+                            color: white !important;
+                            border: 3px solid white !important;
+                            border-radius: 12px !important;
+                            padding: 12px !important;
+                            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.5) !important;
+                        `;
+                    }
+                });
+            });
+        }
     }
     
-    /* Forzar visibilidad en TODOS los estados */
-    [data-testid="stSidebar"][aria-expanded="false"] + * [data-testid="collapsedControl"],
-    [data-testid="stSidebar"][aria-expanded="false"] + * button[kind="header"] {
-        display: flex !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-    }
+    // Ejecutar inmediatamente
+    forceButtonVisible();
     
-    /* Asegurar que nada lo oculte */
-    * {
-        /* Evitar que otros elementos oculten el botón */
-    }
+    // Ejecutar cada vez que cambie el DOM
+    const observer = new MutationObserver(forceButtonVisible);
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+    });
     
-    [data-testid="collapsedControl"],
-    button[kind="header"] {
-        /* Forzar que esté siempre visible */
-        clip-path: none !important;
-        mask: none !important;
-    }
+    // Ejecutar cuando la página termine de cargar
+    window.addEventListener('load', forceButtonVisible);
+    
+    // Ejecutar periódicamente (backup)
+    setInterval(forceButtonVisible, 1000);
+})();
+</script>
+""", unsafe_allow_html=True)
 </style>
 """, unsafe_allow_html=True)
 
@@ -983,5 +1046,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
