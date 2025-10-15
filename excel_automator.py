@@ -74,7 +74,7 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CSS + BOTÓN FLOTANTE PERSONALIZADO
+# CSS + BOTÓN FLOTANTE CON JAVASCRIPT MEJORADO
 # =====================================================================
 
 st.markdown("""
@@ -125,6 +125,7 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: var(--sidebar-bg);
         border-right: none;
+        transition: all 0.3s ease-in-out;
     }
     
     [data-testid="stSidebar"] * {
@@ -228,7 +229,7 @@ st.markdown("""
         border-radius: 4px;
     }
     
-    /* BOTÓN FLOTANTE PERSONALIZADO PARA MÓVIL */
+    /* BOTÓN FLOTANTE PERSONALIZADO */
     #custom-sidebar-button {
         position: fixed;
         bottom: 24px;
@@ -246,15 +247,19 @@ st.markdown("""
         z-index: 999999;
         transition: all 0.3s ease;
         animation: floatButton 2s ease-in-out infinite;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
     }
     
     #custom-sidebar-button:active {
-        transform: scale(0.95);
+        transform: scale(0.9);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.8);
     }
     
     #custom-sidebar-button svg {
         width: 36px;
         height: 36px;
+        pointer-events: none;
     }
     
     #custom-sidebar-button::before {
@@ -270,16 +275,15 @@ st.markdown("""
         font-weight: 700;
         white-space: nowrap;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        pointer-events: none;
     }
     
     @keyframes floatButton {
         0%, 100% {
             transform: translateY(0);
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6);
         }
         50% {
             transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.8);
         }
     }
     
@@ -298,7 +302,10 @@ st.markdown("""
 
 <script>
 (function() {
-    console.log('Inicializando botón flotante...');
+    console.log('🚀 Inicializando botón flotante mejorado...');
+    
+    // Variable para trackear estado del sidebar
+    let sidebarOpen = false;
     
     // Ocultar botón de GitHub
     function hideGitHub() {
@@ -320,50 +327,42 @@ st.markdown("""
         });
     }
     
-    // Función para abrir/cerrar el sidebar
-    function toggleSidebar() {
-        console.log('Toggle sidebar clicked');
-        
-        // Buscar el botón nativo del sidebar
-        const sidebarSelectors = [
-            'section[data-testid="stSidebar"] > div:first-child button',
-            'button[kind="header"]',
-            'button[aria-label*="sidebar" i]',
-            'button[title*="sidebar" i]',
-            '[data-testid="collapsedControl"] button'
-        ];
-        
-        let found = false;
-        for (const selector of sidebarSelectors) {
-            const buttons = document.querySelectorAll(selector);
-            console.log(`Selector ${selector}: encontrados ${buttons.length}`);
-            
-            for (const btn of buttons) {
-                // Verificar que no sea el botón de GitHub
-                if (!btn.closest('[data-testid="stHeader"]') && 
-                    !btn.closest('[data-testid="stToolbar"]')) {
-                    console.log('Haciendo clic en botón del sidebar');
-                    btn.click();
-                    found = true;
-                    break;
-                }
-            }
-            if (found) break;
+    // Función para abrir/cerrar sidebar
+    function toggleSidebar(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
         
-        // Si no se encontró el botón, manipular directamente el sidebar
-        if (!found) {
-            console.log('Manipulando sidebar directamente');
-            const sidebar = document.querySelector('section[data-testid="stSidebar"]');
-            if (sidebar) {
-                const currentTransform = sidebar.style.transform;
-                if (currentTransform === 'translateX(-100%)' || currentTransform === '') {
-                    sidebar.style.transform = 'translateX(0)';
-                    sidebar.style.transition = 'transform 0.3s ease';
-                } else {
-                    sidebar.style.transform = 'translateX(-100%)';
-                }
-            }
+        console.log('🎯 Toggle sidebar - Estado actual:', sidebarOpen);
+        
+        const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+        
+        if (!sidebar) {
+            console.error('❌ Sidebar no encontrado');
+            return;
+        }
+        
+        console.log('✅ Sidebar encontrado');
+        
+        // Alternar estado
+        sidebarOpen = !sidebarOpen;
+        
+        if (sidebarOpen) {
+            // ABRIR
+            console.log('📂 Abriendo sidebar');
+            sidebar.style.marginLeft = '0';
+            sidebar.style.transform = 'translateX(0)';
+            sidebar.style.visibility = 'visible';
+            sidebar.style.opacity = '1';
+            sidebar.style.display = 'block';
+            sidebar.setAttribute('aria-expanded', 'true');
+        } else {
+            // CERRAR
+            console.log('📁 Cerrando sidebar');
+            sidebar.style.marginLeft = '-21rem';
+            sidebar.style.transform = 'translateX(-100%)';
+            sidebar.setAttribute('aria-expanded', 'false');
         }
     }
     
@@ -371,35 +370,63 @@ st.markdown("""
     function setupCustomButton() {
         const customBtn = document.getElementById('custom-sidebar-button');
         
-        if (customBtn && !customBtn.hasAttribute('data-initialized')) {
-            console.log('Configurando botón personalizado');
-            customBtn.setAttribute('data-initialized', 'true');
-            
-            // Click normal
-            customBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleSidebar();
-            });
-            
-            // Touch para móvil
-            customBtn.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleSidebar();
-            }, { passive: false });
-            
-            console.log('Botón personalizado configurado');
+        if (!customBtn) {
+            console.error('❌ Botón personalizado no encontrado');
+            return;
+        }
+        
+        if (customBtn.hasAttribute('data-initialized')) {
+            return;
+        }
+        
+        console.log('⚙️ Configurando botón personalizado...');
+        customBtn.setAttribute('data-initialized', 'true');
+        
+        // Click normal
+        customBtn.addEventListener('click', function(e) {
+            console.log('👆 CLICK detectado');
+            toggleSidebar(e);
+        }, false);
+        
+        // Touch para móvil
+        customBtn.addEventListener('touchstart', function(e) {
+            console.log('👆 TOUCHSTART detectado');
+            e.preventDefault();
+            toggleSidebar(e);
+        }, { passive: false });
+        
+        customBtn.addEventListener('touchend', function(e) {
+            console.log('👆 TOUCHEND detectado');
+            e.preventDefault();
+        }, { passive: false });
+        
+        console.log('✅ Botón configurado correctamente');
+    }
+    
+    // Asegurar que el sidebar tenga transiciones
+    function ensureSidebarReady() {
+        const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+        if (sidebar) {
+            sidebar.style.transition = 'all 0.3s ease-in-out';
+            console.log('✅ Sidebar preparado');
         }
     }
     
+    // Ejecutar configuración inicial
+    function init() {
+        console.log('🔧 Inicializando...');
+        hideGitHub();
+        ensureSidebarReady();
+        setupCustomButton();
+    }
+    
     // Ejecutar inmediatamente
-    hideGitHub();
-    setupCustomButton();
+    init();
     
     // Observar cambios en el DOM
-    const observer = new MutationObserver(function() {
+    const observer = new MutationObserver(function(mutations) {
         hideGitHub();
+        ensureSidebarReady();
         setupCustomButton();
     });
     
@@ -409,24 +436,20 @@ st.markdown("""
     });
     
     // Ejecutar periódicamente
-    setInterval(function() {
-        hideGitHub();
-        setupCustomButton();
-    }, 500);
+    setInterval(hideGitHub, 1000);
     
-    // Al terminar de cargar
+    // Al cargar la página
     window.addEventListener('load', function() {
-        console.log('Página cargada');
-        hideGitHub();
-        setupCustomButton();
+        console.log('📄 Página cargada');
+        setTimeout(init, 100);
     });
     
-    // Después de un delay
-    setTimeout(function() {
-        hideGitHub();
-        setupCustomButton();
-        console.log('Setup completado después de delay');
-    }, 1000);
+    // Delays adicionales
+    setTimeout(init, 500);
+    setTimeout(init, 1000);
+    setTimeout(init, 2000);
+    
+    console.log('✅ Script de botón flotante cargado');
 })();
 </script>
 """, unsafe_allow_html=True)
