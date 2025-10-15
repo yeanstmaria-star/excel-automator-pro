@@ -22,7 +22,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # =====================================================================
-# CONFIGURACIÓN (DEBE IR PRIMERO - ANTES DE CUALQUIER OTRA COSA)
+# CONFIGURACIÓN (DEBE IR PRIMERO)
 # =====================================================================
 
 st.set_page_config(
@@ -63,13 +63,9 @@ if not can_use:
     ### ¿Por qué Premium?
     
     ✅ **Análisis ilimitados** - Sin restricciones diarias
-    
     ✅ **Archivos más grandes** - Hasta 50 MB
-    
     ✅ **Funciones avanzadas** - Todos los tipos de gráficos
-    
     ✅ **Exportar PDF** - Guarda tus reportes
-    
     ✅ **Sin marca de agua** - Reportes profesionales
     
     [💳 Ver Planes](https://smartappslab.gumroad.com/l/owmzol)
@@ -78,37 +74,29 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CSS MODERNO - ESTILO DASHBOARD CON SIDEBAR OSCURO
+# CSS MODERNO + BOTÓN SIDEBAR MÓVIL
 # =====================================================================
 
 st.markdown("""
 <style>
-    /* --- IMPORTAR FUENTE MODERNA --- */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
-    /* --- VARIABLES DE COLOR --- */
     :root {
         --sidebar-bg: #2d3748;
         --sidebar-text: #e2e8f0;
-        --sidebar-active: #14b8a6;
         --main-bg: #f7fafc;
         --card-bg: #ffffff;
         --text-primary: #1a202c;
         --text-secondary: #4a5568;
         --accent-color: #14b8a6;
         --success-color: #10b981;
-        --warning-color: #f59e0b;
-        --error-color: #ef4444;
         --border-color: #e2e8f0;
-        --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
     
-    /* --- BASE --- */
     html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
+        font-family: 'Inter', sans-serif;
     }
     
     .main {
@@ -116,28 +104,17 @@ st.markdown("""
         background-color: var(--main-bg);
     }
     
-    /* --- TIPOGRAFÍA CON ALTO CONTRASTE --- */
     h1 {
         color: var(--text-primary);
         text-align: center;
         font-weight: 700;
         font-size: 2.5rem;
-        letter-spacing: -0.02em;
         margin-bottom: 1.5rem;
     }
     
-    h2, h3 {
+    h2, h3, h4 {
         color: var(--text-primary);
         font-weight: 600;
-        margin-top: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    h4 {
-        color: var(--text-primary);
-        font-weight: 600;
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
     }
     
     p, span, label {
@@ -145,40 +122,29 @@ st.markdown("""
         line-height: 1.6;
     }
     
-    /* --- SIDEBAR OSCURO --- */
     [data-testid="stSidebar"] {
         background-color: var(--sidebar-bg);
         border-right: none;
     }
     
-    [data-testid="stSidebar"] .stMarkdown,
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] span {
+    [data-testid="stSidebar"] * {
         color: var(--sidebar-text) !important;
     }
     
     [data-testid="stSidebar"] strong {
         color: #ffffff !important;
-        font-weight: 600;
     }
     
-    /* --- BOTONES MODERNOS CON ACENTO --- */
     .stButton>button {
         width: 100%;
-        background: linear-gradient(135deg, var(--accent-color) 0%, var(--success-color) 100%);
+        background: linear-gradient(135deg, var(--accent-color), var(--success-color));
         color: white;
         font-weight: 600;
-        font-size: 0.95rem;
         border: none;
         border-radius: 0.5rem;
         padding: 0.75rem 1.5rem;
         box-shadow: var(--shadow);
-        transition: all 0.3s ease;
-        cursor: pointer;
+        transition: all 0.3s;
     }
     
     .stButton>button:hover {
@@ -186,37 +152,27 @@ st.markdown("""
         box-shadow: var(--shadow-lg);
     }
     
-    /* --- TABS ESTILO MODERNO --- */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0.5rem;
-        background-color: transparent;
+        background: transparent;
         border-bottom: 2px solid var(--border-color);
-        padding: 0 0 0.5rem 0;
     }
     
     .stTabs [data-baseweb="tab"] {
-        background-color: transparent;
+        background: transparent;
         color: var(--text-secondary);
         font-weight: 500;
         padding: 0.75rem 1.5rem;
-        border: none;
         border-radius: 0.5rem 0.5rem 0 0;
-        transition: all 0.2s;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: rgba(20, 184, 166, 0.1);
-        color: var(--accent-color);
     }
     
     .stTabs [aria-selected="true"] {
-        background-color: white;
+        background: white;
         color: var(--accent-color);
         border-bottom: 3px solid var(--accent-color);
         font-weight: 600;
     }
     
-    /* --- MÉTRICAS CON ALTO CONTRASTE --- */
     [data-testid="stMetricValue"] {
         font-size: 2.25rem;
         font-weight: 700;
@@ -228,177 +184,32 @@ st.markdown("""
         font-weight: 600;
         font-size: 0.875rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
     }
     
-    /* --- CARDS MODERNOS CON SOMBRA --- */
-    div[data-testid="column"] > div {
-        background-color: var(--card-bg);
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        box-shadow: var(--shadow);
-        border: 1px solid var(--border-color);
-        transition: all 0.3s ease;
-    }
-    
-    div[data-testid="column"] > div:hover {
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-2px);
-    }
-    
-    /* --- DATAFRAME ESTILO MODERNO --- */
     .stDataFrame {
         border: 1px solid var(--border-color);
         border-radius: 0.75rem;
-        overflow: hidden;
         box-shadow: var(--shadow);
     }
     
-    [data-testid="stDataFrame"] table {
-        border-collapse: collapse;
-    }
-    
-    [data-testid="stDataFrame"] th {
-        background-color: #f8fafc;
-        color: var(--text-primary);
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-        padding: 1rem;
-        border-bottom: 2px solid var(--border-color);
-    }
-    
-    [data-testid="stDataFrame"] td {
-        color: var(--text-secondary);
-        padding: 0.875rem 1rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    [data-testid="stDataFrame"] tr:hover {
-        background-color: rgba(20, 184, 166, 0.05);
-    }
-    
-    /* --- INPUTS MODERNOS --- */
-    .stTextInput>div>div>input,
-    .stSelectbox>div>div>select {
-        border: 2px solid var(--border-color);
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        font-size: 0.95rem;
-        color: var(--text-primary);
-        background-color: white;
-        transition: all 0.2s;
-    }
-    
-    .stTextInput>div>div>input:focus,
-    .stSelectbox>div>div>select:focus {
-        border-color: var(--accent-color);
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
-    }
-    
-    .stTextInput label,
-    .stSelectbox label {
-        color: var(--text-primary) !important;
-        font-weight: 600 !important;
-        margin-bottom: 0.5rem;
-    }
-    
-    /* --- FILE UPLOADER MODERNO --- */
     [data-testid="stFileUploader"] {
-        background-color: white;
+        background: white;
         border: 2px dashed var(--border-color);
         border-radius: 0.75rem;
         padding: 2rem;
-        transition: all 0.3s;
     }
     
     [data-testid="stFileUploader"]:hover {
         border-color: var(--accent-color);
-        background-color: rgba(20, 184, 166, 0.02);
     }
     
-    [data-testid="stFileUploader"] label {
-        color: var(--text-primary) !important;
-        font-weight: 600 !important;
+    #MainMenu, footer, header {
+        visibility: hidden;
     }
     
-    /* --- ALERTAS MODERNAS --- */
-    .stAlert {
-        border-radius: 0.5rem;
-        border: none;
-        box-shadow: var(--shadow);
-        padding: 1rem 1.25rem;
-    }
-    
-    .stSuccess {
-        background-color: #d1fae5;
-        color: #065f46;
-        border-left: 4px solid var(--success-color);
-    }
-    
-    .stInfo {
-        background-color: #dbeafe;
-        color: #1e40af;
-        border-left: 4px solid #3b82f6;
-    }
-    
-    .stWarning {
-        background-color: #fef3c7;
-        color: #92400e;
-        border-left: 4px solid var(--warning-color);
-    }
-    
-    .stError {
-        background-color: #fee2e2;
-        color: #991b1b;
-        border-left: 4px solid var(--error-color);
-    }
-    
-    /* --- SUCCESS BOX PERSONALIZADO --- */
-    .success-box {
-        padding: 1rem 1.25rem;
-        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-        border-left: 4px solid var(--success-color);
-        border-radius: 0.5rem;
-        margin: 1rem 0;
-        color: #065f46;
-        font-weight: 500;
-        box-shadow: var(--shadow);
-    }
-    
-    /* --- SLIDER MODERNO --- */
-    .stSlider [data-baseweb="slider"] {
-        margin-top: 1rem;
-    }
-    
-    .stSlider [data-baseweb="slider"] [role="slider"] {
-        background-color: var(--accent-color);
-        border: 3px solid white;
-        box-shadow: var(--shadow);
-    }
-    
-    /* --- CHECKBOX Y RADIO --- */
-    .stCheckbox label,
-    .stRadio label {
-        color: var(--text-primary) !important;
-        font-weight: 500 !important;
-    }
-    
-    /* --- OCULTAR ELEMENTOS --- */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* --- SCROLLBAR PERSONALIZADO --- */
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: var(--main-bg);
     }
     
     ::-webkit-scrollbar-thumb {
@@ -406,191 +217,90 @@ st.markdown("""
         border-radius: 4px;
     }
     
-    ::-webkit-scrollbar-thumb:hover {
-        background: #a0aec0;
-    }
-
-    /* ========================================
-       BOTÓN SIDEBAR MOBILE - FORZADO VISIBLE
-       ======================================== */
-    
-    /* Todos los posibles selectores del botón */
+    /* BOTÓN SIDEBAR MÓVIL - SUPER VISIBLE */
     button[kind="header"],
     button[data-testid="baseButton-header"],
-    button[data-testid="collapsedControl"],
-    section[data-testid="stSidebar"] button[kind="header"],
-    [data-testid="stSidebarNav"] button,
-    div[data-testid="stSidebarCollapsedControl"] button {
-        background: linear-gradient(135deg, #ff6b35 0%, #ffa500 100%) !important;
+    button[data-testid="collapsedControl"] {
+        background: linear-gradient(135deg, #ff6b35, #ffa500) !important;
         color: white !important;
         border: 3px solid white !important;
         border-radius: 12px !important;
         padding: 12px !important;
-        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.5) !important;
-        transition: all 0.3s ease !important;
+        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.6) !important;
         opacity: 1 !important;
         visibility: visible !important;
-        display: flex !important;
-        pointer-events: auto !important;
     }
     
-    /* Hover state */
-    button[kind="header"]:hover,
-    button[data-testid="baseButton-header"]:hover,
-    button[data-testid="collapsedControl"]:hover {
-        background: linear-gradient(135deg, #ffa500 0%, #ff6b35 100%) !important;
-        transform: scale(1.1) !important;
-        box-shadow: 0 12px 32px rgba(255, 165, 0, 0.6) !important;
-    }
-    
-    /* Iconos */
     button[kind="header"] svg,
     button[data-testid="baseButton-header"] svg,
     button[data-testid="collapsedControl"] svg {
         stroke: white !important;
         stroke-width: 3px !important;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
         fill: white !important;
     }
     
-    /* Estilos específicos para móvil */
     @media (max-width: 768px) {
         button[kind="header"],
         button[data-testid="baseButton-header"],
-        button[data-testid="collapsedControl"],
-        div[data-testid="stSidebarCollapsedControl"] button {
+        button[data-testid="collapsedControl"] {
             position: fixed !important;
-            top: 12px !important;
-            left: 12px !important;
-            width: 56px !important;
-            height: 56px !important;
-            min-width: 56px !important;
-            min-height: 56px !important;
+            top: 16px !important;
+            left: 16px !important;
+            width: 60px !important;
+            height: 60px !important;
             z-index: 999999 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
-            animation: mobilePulse 2s infinite !important;
+            animation: pulse 2s infinite !important;
         }
         
-        /* Animación de pulso */
-        @keyframes mobilePulse {
+        @keyframes pulse {
             0%, 100% {
-                box-shadow: 0 8px 24px rgba(255, 107, 53, 0.5);
                 transform: scale(1);
+                box-shadow: 0 8px 24px rgba(255, 107, 53, 0.6);
             }
             50% {
-                box-shadow: 0 8px 32px rgba(255, 107, 53, 0.8);
                 transform: scale(1.05);
+                box-shadow: 0 12px 32px rgba(255, 107, 53, 0.8);
             }
         }
         
-        /* Icono más grande */
         button[kind="header"] svg,
         button[data-testid="baseButton-header"] svg,
         button[data-testid="collapsedControl"] svg {
-            width: 28px !important;
-            height: 28px !important;
-        }
-        
-        /* Punto rojo parpadeante */
-        button[kind="header"]::after,
-        button[data-testid="baseButton-header"]::after,
-        button[data-testid="collapsedControl"]::after {
-            content: "" !important;
-            position: absolute !important;
-            top: -4px !important;
-            right: -4px !important;
-            width: 12px !important;
-            height: 12px !important;
-            background-color: #ef4444 !important;
-            border: 2px solid white !important;
-            border-radius: 50% !important;
-            animation: mobileBlink 1.5s infinite !important;
-            display: block !important;
-        }
-        
-        @keyframes mobileBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        /* Forzar el contenedor del botón visible */
-        div[data-testid="stSidebarCollapsedControl"],
-        section[data-testid="stSidebar"] > div:first-child {
-            display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
+            width: 32px !important;
+            height: 32px !important;
         }
     }
-
-    </style>
+</style>
 
 <script>
-// Forzar visibilidad del botón del sidebar en móvil
 (function() {
-    function forceButtonVisible() {
-        // Si estamos en móvil
+    function makeSidebarButtonVisible() {
         if (window.innerWidth <= 768) {
-            // Buscar todos los posibles botones
             const selectors = [
                 'button[kind="header"]',
                 'button[data-testid="baseButton-header"]',
-                'button[data-testid="collapsedControl"]',
-                'div[data-testid="stSidebarCollapsedControl"] button'
+                'button[data-testid="collapsedControl"]'
             ];
             
-            selectors.forEach(selector => {
-                const buttons = document.querySelectorAll(selector);
-                buttons.forEach(button => {
-                    if (button) {
-                        button.style.cssText = `
-                            position: fixed !important;
-                            top: 12px !important;
-                            left: 12px !important;
-                            width: 56px !important;
-                            height: 56px !important;
-                            z-index: 999999 !important;
-                            display: flex !important;
-                            opacity: 1 !important;
-                            visibility: visible !important;
-                            pointer-events: auto !important;
-                            background: linear-gradient(135deg, #ff6b35 0%, #ffa500 100%) !important;
-                            color: white !important;
-                            border: 3px solid white !important;
-                            border-radius: 12px !important;
-                            padding: 12px !important;
-                            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.5) !important;
-                        `;
+            selectors.forEach(sel => {
+                document.querySelectorAll(sel).forEach(btn => {
+                    if (btn) {
+                        btn.style.cssText = 'position: fixed !important; top: 16px !important; left: 16px !important; width: 60px !important; height: 60px !important; z-index: 999999 !important; background: linear-gradient(135deg, #ff6b35, #ffa500) !important; color: white !important; border: 3px solid white !important; border-radius: 12px !important; box-shadow: 0 8px 24px rgba(255,107,53,0.6) !important; display: flex !important; align-items: center !important; justify-content: center !important; opacity: 1 !important; visibility: visible !important;';
                     }
                 });
             });
         }
     }
     
-    // Ejecutar inmediatamente
-    forceButtonVisible();
-    
-    // Ejecutar cada vez que cambie el DOM
-    const observer = new MutationObserver(forceButtonVisible);
-    observer.observe(document.body, { 
-        childList: true, 
-        subtree: true 
-    });
-    
-    // Ejecutar cuando la página termine de cargar
-    window.addEventListener('load', forceButtonVisible);
-    
-    // Ejecutar periódicamente (backup)
-    setInterval(forceButtonVisible, 1000);
+    makeSidebarButtonVisible();
+    new MutationObserver(makeSidebarButtonVisible).observe(document.body, {childList: true, subtree: true});
+    window.addEventListener('load', makeSidebarButtonVisible);
+    setInterval(makeSidebarButtonVisible, 500);
 })();
 </script>
-""", unsafe_allow_html=True)
-</style>
 """, unsafe_allow_html=True)
 
 # =====================================================================
@@ -664,17 +374,15 @@ def create_excel_download(df, include_stats=False):
 
 def main():
     
-    # HEADER
     st.markdown("""
         <div style='text-align: center; margin-bottom: 3rem;'>
-            <h1 style='font-size: 3rem; margin-bottom: 0.5rem;'>📊 Excel Automator Pro</h1>
+            <h1>📊 Excel Automator Pro</h1>
             <p style='color: #64748b; font-size: 1.125rem;'>
                 Analiza y procesa tus datos en segundos
             </p>
         </div>
     """, unsafe_allow_html=True)
     
-    # SIDEBAR
     with st.sidebar:
         st.markdown("### ⚡ Procesamiento Automático")
         
@@ -703,7 +411,6 @@ def main():
         st.markdown("---")
         st.success("💡 Todo el procesamiento es automático e inteligente")
     
-    # UPLOAD
     uploaded_file = st.file_uploader(
         "Arrastra tu archivo Excel o CSV aquí",
         type=['xlsx', 'xls', 'csv'],
@@ -712,7 +419,6 @@ def main():
     
     if uploaded_file is not None:
         try:
-            # Leer archivo
             if uploaded_file.name.endswith('.csv'):
                 try:
                     df = pd.read_csv(uploaded_file, sep=None, engine='python', encoding='utf-8')
@@ -727,22 +433,18 @@ def main():
             else:
                 df = pd.read_excel(uploaded_file)
             
-            # PROCESAMIENTO AUTOMÁTICO
             st.info("🔧 Procesando y optimizando datos automáticamente...")
             
             df_original = df.copy()
             initial_stats = {
                 'rows': len(df),
                 'cols': len(df.columns),
-                'nulls': df.isnull().sum().sum(),
                 'duplicates': df.duplicated().sum()
             }
             
-            # Limpiar
             df = df.dropna(axis=1, how='all')
             df = df.dropna(how='all')
             
-            # Ordenar por fecha
             date_cols = []
             for col in df.columns:
                 if 'fecha' in col.lower() or 'date' in col.lower():
@@ -757,11 +459,9 @@ def main():
                 df = df.sort_values(by=date_cols[0], ascending=True).reset_index(drop=True)
                 st.success(f"✅ Datos ordenados cronológicamente por '{date_cols[0]}'")
             
-            # Limpiar espacios
             for col in df.select_dtypes(include=['object']).columns:
                 df[col] = df[col].str.strip() if df[col].dtype == 'object' else df[col]
             
-            # Eliminar duplicados
             duplicates_removed = df.duplicated().sum()
             if duplicates_removed > 0:
                 df = df.drop_duplicates().reset_index(drop=True)
@@ -769,42 +469,30 @@ def main():
             final_stats = {
                 'rows': len(df),
                 'cols': len(df.columns),
-                'nulls': df.isnull().sum().sum(),
                 'duplicates': df.duplicated().sum()
             }
             
-            # Mostrar resumen
             if initial_stats != final_stats:
-                st.markdown("""
-                    <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                                padding: 20px; border-radius: 12px; margin: 20px 0;'>
-                        <h3 style='color: white; margin: 0 0 15px 0;'>✨ Limpieza Automática Completada</h3>
-                """, unsafe_allow_html=True)
+                st.success("✨ Limpieza Automática Completada")
                 
                 col1, col2, col3, col4 = st.columns(4)
                 with col1:
                     rows_cleaned = initial_stats['rows'] - final_stats['rows']
-                    st.metric("Filas Eliminadas", rows_cleaned, 
-                             delta=f"-{(rows_cleaned/initial_stats['rows']*100):.1f}%" if rows_cleaned > 0 else "0%",
-                             delta_color="off")
+                    st.metric("Filas Eliminadas", rows_cleaned)
                 with col2:
                     cols_cleaned = initial_stats['cols'] - final_stats['cols']
-                    st.metric("Columnas Vacías", cols_cleaned, delta_color="off")
+                    st.metric("Columnas Vacías", cols_cleaned)
                 with col3:
-                    st.metric("Duplicados", duplicates_removed, delta_color="off")
+                    st.metric("Duplicados", duplicates_removed)
                 with col4:
                     st.metric("Filas Finales", final_stats['rows'])
-                
-                st.markdown("</div>", unsafe_allow_html=True)
             
             st.success(f"✅ Archivo procesado: **{uploaded_file.name}**")
 
-            # INCREMENTAR USO
             if st.session_state.user_tier == 'free':
                 auth.increment_usage()
                 st.success(f"✅ Análisis completado! ({st.session_state.daily_uses}/3 usados hoy)")
             
-            # TABS
             tab1, tab2, tab3, tab4 = st.tabs([
                 "📊 Resumen", 
                 "🔍 Explorar", 
@@ -812,7 +500,6 @@ def main():
                 "💾 Exportar"
             ])
             
-            # TAB 1: RESUMEN
             with tab1:
                 st.markdown("### Resumen General")
                 
@@ -850,7 +537,6 @@ def main():
                 else:
                     st.dataframe(df.head(100), use_container_width=True)
             
-            # TAB 2: EXPLORAR
             with tab2:
                 st.markdown("### Análisis Exploratorio")
                 
@@ -911,7 +597,6 @@ def main():
                     fig.update_layout(height=500, showlegend=False)
                     st.plotly_chart(fig, use_container_width=True)
             
-            # TAB 3: GRÁFICOS
             with tab3:
                 st.markdown("### Visualizaciones")
                 
@@ -959,7 +644,6 @@ def main():
                         fig = px.pie(values=values.values, names=values.index, hole=0.4)
                         st.plotly_chart(fig, use_container_width=True)
             
-            # TAB 4: EXPORTAR
             with tab4:
                 st.markdown("### Exportar Datos Procesados")
                 
@@ -972,11 +656,6 @@ def main():
                 with col1:
                     remove_nulls = st.checkbox("Eliminar filas con valores nulos", value=False)
                     include_stats = st.checkbox("Incluir hoja de estadísticas", value=True)
-                
-                with col2:
-                    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                    if numeric_cols:
-                        remove_outliers = st.checkbox("Eliminar outliers extremos", value=False)
                 
                 if st.button("🎯 Preparar Descarga", type="primary"):
                     df_export = df.copy()
@@ -994,7 +673,7 @@ def main():
                     
                     st.markdown("#### 📥 Descargar Archivo Procesado")
                     
-                    col1, col2, col3 = st.columns(3)
+                    col1, col2 = st.columns(2)
                     
                     with col1:
                         csv_data = df_to_export.to_csv(index=False).encode('utf-8-sig')
@@ -1022,7 +701,6 @@ def main():
             st.info("Verifica que el archivo esté en formato correcto")
     
     else:
-        # Landing
         st.markdown("""
             <div style='text-align: center; padding: 60px 20px; 
                         background: white; border-radius: 16px; 
@@ -1036,7 +714,6 @@ def main():
             </div>
         """, unsafe_allow_html=True)
     
-    # Footer
     st.markdown("---")
     st.markdown("""
         <div style='text-align: center; color: #94a3b8; padding: 1rem;'>
@@ -1046,6 +723,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
