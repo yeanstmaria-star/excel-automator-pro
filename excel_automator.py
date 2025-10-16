@@ -18,7 +18,7 @@ st.set_page_config(
     page_title="Excel Automator Pro",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="collapsed"  # COLAPSADO para que exista el botón
+    initial_sidebar_state="collapsed"
 )
 
 import auth
@@ -44,16 +44,11 @@ if not can_use:
     """)
     st.stop()
 
-# =====================================================================
-# CSS CON PESTAÑA MÁS ARRIBA
-# =====================================================================
-
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
     * { font-family: 'Inter', sans-serif; }
-    
     .main { padding: 2rem; background-color: #f7fafc; }
     
     h1 {
@@ -64,7 +59,6 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    /* SIDEBAR */
     [data-testid="stSidebar"] {
         background-color: #2d3748 !important;
     }
@@ -77,7 +71,6 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* OCULTAR HEADER */
     [data-testid="stHeader"],
     [data-testid="stToolbar"],
     #MainMenu,
@@ -85,11 +78,10 @@ st.markdown("""
         display: none !important;
     }
     
-    /* PESTAÑA LATERAL - MÁS ARRIBA */
     #sidebar-tab {
         position: fixed;
         left: 0;
-        top: 120px;  /* MÁS ARRIBA */
+        top: 120px;
         width: 50px;
         height: 120px;
         background: linear-gradient(135deg, #10b981, #14b8a6);
@@ -136,7 +128,6 @@ st.markdown("""
         text-transform: uppercase;
     }
     
-    /* OVERLAY OSCURO */
     #sidebar-overlay {
         display: none;
         position: fixed;
@@ -155,10 +146,9 @@ st.markdown("""
         opacity: 1;
     }
     
-    /* EN MÓVIL */
     @media (max-width: 768px) {
         #sidebar-tab {
-            top: 80px;  /* Más arriba en móvil */
+            top: 80px;
             width: 45px;
             height: 100px;
         }
@@ -204,43 +194,38 @@ st.markdown("""
 
 <script>
 (function() {
-    console.log('🎯 Inicializando control del sidebar');
+    console.log('Inicializando control del sidebar');
     
     var clickCount = 0;
     
     function toggleSidebar() {
         clickCount++;
-        console.log('🔘 Click #' + clickCount + ' en pestaña');
+        console.log('Click numero ' + clickCount + ' en pestana');
         
-        // MÉTODO 1: Buscar todos los posibles botones nativos
         var buttonSelectors = [
             'button[kind="header"]',
             'button[data-testid="collapsedControl"]',
             'section[data-testid="stSidebar"] button',
-            'button[aria-label*="sidebar"]',
-            'button[title*="sidebar"]',
-            '[data-testid="stSidebarNav"] button'
+            'button[aria-label*="sidebar"]'
         ];
         
         var buttonFound = false;
         
         for (var i = 0; i < buttonSelectors.length; i++) {
             var buttons = document.querySelectorAll(buttonSelectors[i]);
-            console.log('Selector "' + buttonSelectors[i] + '": ' + buttons.length + ' botones encontrados');
+            console.log('Selector ' + i + ': ' + buttons.length + ' botones');
             
             if (buttons.length > 0) {
-                // Filtrar botones que no sean del header
                 for (var j = 0; j < buttons.length; j++) {
                     var btn = buttons[j];
                     var isHeaderButton = btn.closest('[data-testid="stHeader"]') || 
                                         btn.closest('[data-testid="stToolbar"]');
                     
                     if (!isHeaderButton) {
-                        console.log('✅ Botón del sidebar encontrado, haciendo clic');
+                        console.log('Boton del sidebar encontrado');
                         btn.click();
                         buttonFound = true;
                         
-                        // Mostrar overlay en móvil
                         setTimeout(function() {
                             if (window.innerWidth <= 768) {
                                 var overlay = document.getElementById('sidebar-overlay');
@@ -257,13 +242,10 @@ st.markdown("""
         }
         
         if (!buttonFound) {
-            console.error('❌ No se encontró ningún botón del sidebar');
-            console.log('Intentando método alternativo...');
-            
-            // MÉTODO 2: Manipular el sidebar directamente
+            console.error('No se encontro boton del sidebar');
             var sidebar = document.querySelector('section[data-testid="stSidebar"]');
             if (sidebar) {
-                console.log('✅ Sidebar encontrado, cambiando atributos');
+                console.log('Sidebar encontrado, cambiando atributos');
                 var isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
                 
                 if (isCollapsed) {
@@ -277,18 +259,16 @@ st.markdown("""
                 }
                 
                 buttonFound = true;
-            } else {
-                console.error('❌ Sidebar tampoco encontrado en el DOM');
             }
         }
         
         if (!buttonFound) {
-            alert('No se puede abrir el menú. Intenta recargar la página (F5).');
+            alert('No se puede abrir el menu. Recarga la pagina (F5).');
         }
     }
     
     function closeSidebar() {
-        console.log('📁 Cerrando sidebar desde overlay');
+        console.log('Cerrando sidebar');
         var sidebar = document.querySelector('section[data-testid="stSidebar"]');
         if (sidebar) {
             sidebar.setAttribute('aria-expanded', 'false');
@@ -299,17 +279,15 @@ st.markdown("""
             overlay.classList.remove('active');
         }
         
-        // Intentar hacer clic en el botón nativo para cerrar
         var closeButton = document.querySelector('button[kind="header"]');
         if (closeButton) {
             closeButton.click();
         }
     }
     
-    // Configurar pestaña
     var tab = document.getElementById('sidebar-tab');
     if (tab) {
-        console.log('✅ Pestaña encontrada, agregando eventos');
+        console.log('Pestana encontrada');
         
         tab.addEventListener('click', toggleSidebar);
         
@@ -318,45 +296,36 @@ st.markdown("""
             toggleSidebar();
         }, {passive: false});
         
-        console.log('✅ Eventos agregados a la pestaña');
-    } else {
-        console.error('❌ Pestaña no encontrada');
+        console.log('Eventos agregados');
     }
     
-    // Configurar overlay
     var overlay = document.getElementById('sidebar-overlay');
     if (overlay) {
         overlay.addEventListener('click', closeSidebar);
         overlay.addEventListener('touchstart', closeSidebar);
     }
     
-    // Ocultar header
     setInterval(function() {
         var headers = document.querySelectorAll('[data-testid="stHeader"], [data-testid="stToolbar"]');
         headers.forEach(function(h) { if (h) h.remove(); });
     }, 500);
     
-    // Test después de cargar
     setTimeout(function() {
-        console.log('🔍 TEST: Verificando elementos después de 2 segundos');
+        console.log('TEST despues de 2 segundos');
         var sidebar = document.querySelector('section[data-testid="stSidebar"]');
-        console.log('Sidebar en DOM:', !!sidebar);
+        console.log('Sidebar en DOM: ' + !!sidebar);
         
         var nativeButton = document.querySelector('button[kind="header"]');
-        console.log('Botón nativo en DOM:', !!nativeButton);
+        console.log('Boton nativo: ' + !!nativeButton);
         
         var tab = document.getElementById('sidebar-tab');
-        console.log('Pestaña en DOM:', !!tab);
+        console.log('Pestana en DOM: ' + !!tab);
     }, 2000);
     
-    console.log('✅ Sistema inicializado correctamente');
+    console.log('Sistema inicializado');
 })();
 </script>
 """, unsafe_allow_html=True)
-
-# =====================================================================
-# RESTO DEL CÓDIGO IGUAL (funciones y main)
-# =====================================================================
 
 def detect_outliers(df, column):
     if pd.api.types.is_numeric_dtype(df[column]):
@@ -544,5 +513,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-   Selector "...": X botones encontrados
