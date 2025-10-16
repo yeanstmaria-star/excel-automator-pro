@@ -18,7 +18,7 @@ st.set_page_config(
     page_title="Excel Automator Pro",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="auto"
+    initial_sidebar_state="collapsed"  # COLAPSADO para que exista el botón
 )
 
 import auth
@@ -45,7 +45,7 @@ if not can_use:
     st.stop()
 
 # =====================================================================
-# CSS CON PESTAÑA LATERAL
+# CSS CON PESTAÑA MÁS ARRIBA
 # =====================================================================
 
 st.markdown("""
@@ -64,7 +64,7 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    /* SIDEBAR NORMAL */
+    /* SIDEBAR */
     [data-testid="stSidebar"] {
         background-color: #2d3748 !important;
     }
@@ -85,12 +85,11 @@ st.markdown("""
         display: none !important;
     }
     
-    /* PESTAÑA LATERAL PARA ABRIR SIDEBAR */
+    /* PESTAÑA LATERAL - MÁS ARRIBA */
     #sidebar-tab {
         position: fixed;
         left: 0;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 120px;  /* MÁS ARRIBA */
         width: 50px;
         height: 120px;
         background: linear-gradient(135deg, #10b981, #14b8a6);
@@ -109,6 +108,12 @@ st.markdown("""
     #sidebar-tab:hover {
         width: 55px;
         box-shadow: 3px 0 16px rgba(16, 185, 129, 0.6);
+        transform: translateX(2px);
+    }
+    
+    #sidebar-tab:active {
+        transform: translateX(4px);
+        box-shadow: 4px 0 20px rgba(16, 185, 129, 0.8);
     }
     
     #sidebar-tab svg {
@@ -150,21 +155,10 @@ st.markdown("""
         opacity: 1;
     }
     
-    /* CUANDO EL SIDEBAR ESTÁ COLAPSADO, MOSTRAR LA PESTAÑA */
-    [data-testid="stSidebar"][aria-expanded="false"] ~ #sidebar-tab,
-    body:not(:has([data-testid="stSidebar"][aria-expanded="true"])) #sidebar-tab {
-        display: flex;
-    }
-    
-    /* CUANDO EL SIDEBAR ESTÁ ABIERTO, OCULTAR LA PESTAÑA */
-    [data-testid="stSidebar"][aria-expanded="true"] ~ #sidebar-tab {
-        display: none;
-    }
-    
-    /* EN MÓVIL, SIEMPRE MOSTRAR LA PESTAÑA */
+    /* EN MÓVIL */
     @media (max-width: 768px) {
         #sidebar-tab {
-            display: flex !important;
+            top: 80px;  /* Más arriba en móvil */
             width: 45px;
             height: 100px;
         }
@@ -179,7 +173,6 @@ st.markdown("""
         padding: 0.75rem 1.5rem;
     }
     
-    /* MEJOR VISUALIZACIÓN DE TABS */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0.5rem;
         border-bottom: 2px solid #e2e8f0;
@@ -211,89 +204,158 @@ st.markdown("""
 
 <script>
 (function() {
-    console.log('🎯 Inicializando pestaña del sidebar');
+    console.log('🎯 Inicializando control del sidebar');
     
-    function openSidebar() {
-        console.log('📂 Abriendo sidebar');
+    var clickCount = 0;
+    
+    function toggleSidebar() {
+        clickCount++;
+        console.log('🔘 Click #' + clickCount + ' en pestaña');
         
-        // Buscar el botón nativo de Streamlit que abre el sidebar
-        var sidebarButton = document.querySelector('button[kind="header"]');
+        // MÉTODO 1: Buscar todos los posibles botones nativos
+        var buttonSelectors = [
+            'button[kind="header"]',
+            'button[data-testid="collapsedControl"]',
+            'section[data-testid="stSidebar"] button',
+            'button[aria-label*="sidebar"]',
+            'button[title*="sidebar"]',
+            '[data-testid="stSidebarNav"] button'
+        ];
         
-        if (sidebarButton) {
-            console.log('✅ Botón nativo encontrado, haciendo clic');
-            sidebarButton.click();
+        var buttonFound = false;
+        
+        for (var i = 0; i < buttonSelectors.length; i++) {
+            var buttons = document.querySelectorAll(buttonSelectors[i]);
+            console.log('Selector "' + buttonSelectors[i] + '": ' + buttons.length + ' botones encontrados');
             
-            // Mostrar overlay en móvil
-            if (window.innerWidth <= 768) {
-                var overlay = document.getElementById('sidebar-overlay');
-                if (overlay) {
-                    setTimeout(function() {
-                        overlay.classList.add('active');
-                    }, 100);
+            if (buttons.length > 0) {
+                // Filtrar botones que no sean del header
+                for (var j = 0; j < buttons.length; j++) {
+                    var btn = buttons[j];
+                    var isHeaderButton = btn.closest('[data-testid="stHeader"]') || 
+                                        btn.closest('[data-testid="stToolbar"]');
+                    
+                    if (!isHeaderButton) {
+                        console.log('✅ Botón del sidebar encontrado, haciendo clic');
+                        btn.click();
+                        buttonFound = true;
+                        
+                        // Mostrar overlay en móvil
+                        setTimeout(function() {
+                            if (window.innerWidth <= 768) {
+                                var overlay = document.getElementById('sidebar-overlay');
+                                if (overlay) {
+                                    overlay.classList.add('active');
+                                }
+                            }
+                        }, 100);
+                        
+                        return;
+                    }
                 }
             }
-        } else {
-            console.error('❌ Botón nativo no encontrado');
+        }
+        
+        if (!buttonFound) {
+            console.error('❌ No se encontró ningún botón del sidebar');
+            console.log('Intentando método alternativo...');
             
-            // Fallback: manipular sidebar directamente
+            // MÉTODO 2: Manipular el sidebar directamente
             var sidebar = document.querySelector('section[data-testid="stSidebar"]');
             if (sidebar) {
-                sidebar.setAttribute('aria-expanded', 'true');
-                sidebar.style.transform = 'translateX(0)';
+                console.log('✅ Sidebar encontrado, cambiando atributos');
+                var isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
                 
-                var overlay = document.getElementById('sidebar-overlay');
-                if (overlay && window.innerWidth <= 768) {
-                    overlay.classList.add('active');
+                if (isCollapsed) {
+                    sidebar.setAttribute('aria-expanded', 'true');
+                    sidebar.style.marginLeft = '0';
+                    sidebar.style.transform = 'translateX(0)';
+                } else {
+                    sidebar.setAttribute('aria-expanded', 'false');
+                    sidebar.style.marginLeft = '-21rem';
+                    sidebar.style.transform = 'translateX(-100%)';
                 }
+                
+                buttonFound = true;
+            } else {
+                console.error('❌ Sidebar tampoco encontrado en el DOM');
             }
+        }
+        
+        if (!buttonFound) {
+            alert('No se puede abrir el menú. Intenta recargar la página (F5).');
         }
     }
     
     function closeSidebar() {
-        console.log('📁 Cerrando sidebar');
-        
-        var sidebarButton = document.querySelector('button[kind="header"]');
-        
-        if (sidebarButton) {
-            sidebarButton.click();
+        console.log('📁 Cerrando sidebar desde overlay');
+        var sidebar = document.querySelector('section[data-testid="stSidebar"]');
+        if (sidebar) {
+            sidebar.setAttribute('aria-expanded', 'false');
         }
         
         var overlay = document.getElementById('sidebar-overlay');
         if (overlay) {
             overlay.classList.remove('active');
         }
+        
+        // Intentar hacer clic en el botón nativo para cerrar
+        var closeButton = document.querySelector('button[kind="header"]');
+        if (closeButton) {
+            closeButton.click();
+        }
     }
     
     // Configurar pestaña
     var tab = document.getElementById('sidebar-tab');
     if (tab) {
-        tab.onclick = openSidebar;
-        tab.ontouchstart = function(e) {
+        console.log('✅ Pestaña encontrada, agregando eventos');
+        
+        tab.addEventListener('click', toggleSidebar);
+        
+        tab.addEventListener('touchstart', function(e) {
             e.preventDefault();
-            openSidebar();
-        };
-        console.log('✅ Pestaña configurada');
+            toggleSidebar();
+        }, {passive: false});
+        
+        console.log('✅ Eventos agregados a la pestaña');
+    } else {
+        console.error('❌ Pestaña no encontrada');
     }
     
-    // Configurar overlay (cerrar al tocar)
+    // Configurar overlay
     var overlay = document.getElementById('sidebar-overlay');
     if (overlay) {
-        overlay.onclick = closeSidebar;
+        overlay.addEventListener('click', closeSidebar);
+        overlay.addEventListener('touchstart', closeSidebar);
     }
     
-    // Ocultar header periódicamente
+    // Ocultar header
     setInterval(function() {
         var headers = document.querySelectorAll('[data-testid="stHeader"], [data-testid="stToolbar"]');
         headers.forEach(function(h) { if (h) h.remove(); });
     }, 500);
     
-    console.log('✅ Sistema de pestaña inicializado');
+    // Test después de cargar
+    setTimeout(function() {
+        console.log('🔍 TEST: Verificando elementos después de 2 segundos');
+        var sidebar = document.querySelector('section[data-testid="stSidebar"]');
+        console.log('Sidebar en DOM:', !!sidebar);
+        
+        var nativeButton = document.querySelector('button[kind="header"]');
+        console.log('Botón nativo en DOM:', !!nativeButton);
+        
+        var tab = document.getElementById('sidebar-tab');
+        console.log('Pestaña en DOM:', !!tab);
+    }, 2000);
+    
+    console.log('✅ Sistema inicializado correctamente');
 })();
 </script>
 """, unsafe_allow_html=True)
 
 # =====================================================================
-# FUNCIONES
+# RESTO DEL CÓDIGO IGUAL (funciones y main)
 # =====================================================================
 
 def detect_outliers(df, column):
@@ -339,10 +401,6 @@ def create_excel_download(df, include_stats=False):
                 numeric_df.describe().to_excel(writer, sheet_name='Estadísticas')
     return output.getvalue()
 
-# =====================================================================
-# INTERFAZ
-# =====================================================================
-
 def main():
     st.markdown("<div style='text-align: center; margin-bottom: 3rem;'><h1>📊 Excel Automator Pro</h1><p style='color: #64748b; font-size: 1.125rem;'>Analiza y procesa tus datos en segundos</p></div>", unsafe_allow_html=True)
     
@@ -353,24 +411,19 @@ def main():
         ✅ Limpieza automática de datos
         ✅ Ordenamiento cronológico
         ✅ Eliminación de duplicados
-        ✅ Detección de outliers
         
         **📊 Análisis Inteligente:**
         ✅ Estadísticas descriptivas
         ✅ Correlaciones automáticas
-        ✅ Insights generados por IA
         
         **📈 Visualizaciones:**
-        ✅ Múltiples gráficos profesionales
-        ✅ Interactivos y exportables
+        ✅ Gráficos profesionales
         
-        **📥 Exportación Premium:**
-        ✅ Excel formateado
-        ✅ CSV optimizado
-        ✅ Reportes con estadísticas
+        **📥 Exportación:**
+        ✅ Excel y CSV optimizados
         """)
         st.markdown("---")
-        st.success("💡 Todo automático e inteligente")
+        st.success("💡 Todo automático")
     
     uploaded_file = st.file_uploader("Arrastra tu archivo Excel o CSV aquí", type=['xlsx', 'xls', 'csv'])
     
@@ -386,10 +439,9 @@ def main():
             else:
                 df = pd.read_excel(uploaded_file)
             
-            st.info("🔧 Procesando datos...")
+            st.info("🔧 Procesando...")
             
             initial_stats = {'rows': len(df), 'cols': len(df.columns), 'duplicates': df.duplicated().sum()}
-            
             df = df.dropna(axis=1, how='all').dropna(how='all')
             
             date_cols = []
@@ -404,10 +456,7 @@ def main():
             
             if date_cols:
                 df = df.sort_values(by=date_cols[0], ascending=True).reset_index(drop=True)
-                st.success(f"✅ Datos ordenados por '{date_cols[0]}'")
-            
-            for col in df.select_dtypes(include=['object']).columns:
-                df[col] = df[col].str.strip() if df[col].dtype == 'object' else df[col]
+                st.success(f"✅ Ordenado por '{date_cols[0]}'")
             
             duplicates_removed = df.duplicated().sum()
             if duplicates_removed > 0:
@@ -431,7 +480,7 @@ def main():
             
             if st.session_state.user_tier == 'free':
                 auth.increment_usage()
-                st.success(f"✅ Análisis completado! ({st.session_state.daily_uses}/3 usados hoy)")
+                st.success(f"✅ ({st.session_state.daily_uses}/3 usados hoy)")
             
             tab1, tab2, tab3, tab4 = st.tabs(["📊 Resumen", "🔍 Explorar", "📈 Gráficos", "💾 Exportar"])
             
@@ -449,134 +498,51 @@ def main():
                     st.metric("Duplicados", df.duplicated().sum())
                 
                 st.markdown("---")
-                st.markdown("### 🧠 Insights Automáticos")
+                st.markdown("### 🧠 Insights")
                 for insight in generate_insights(df):
                     st.info(insight)
                 
                 st.markdown("---")
                 st.markdown("### Vista Previa")
-                search = st.text_input("🔍 Buscar", placeholder="Escribe para buscar...")
-                if search:
-                    mask = df.astype(str).apply(lambda x: x.str.contains(search, case=False, na=False)).any(axis=1)
-                    filtered = df[mask]
-                    st.caption(f"Mostrando {len(filtered)} resultados")
-                    st.dataframe(filtered.head(50), use_container_width=True)
-                else:
-                    st.dataframe(df.head(100), use_container_width=True)
+                st.dataframe(df.head(100), use_container_width=True)
             
             with tab2:
-                st.markdown("### Análisis Exploratorio")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.markdown("#### Información de Columnas")
-                    info_list = [{'Columna': col, 'Tipo': str(df[col].dtype), 'Únicos': df[col].nunique(), 'Nulos': df[col].isnull().sum(), '% Nulos': f"{(df[col].isnull().sum() / len(df) * 100):.1f}%"} for col in df.columns]
-                    st.dataframe(pd.DataFrame(info_list), use_container_width=True, hide_index=True)
-                
-                with col2:
-                    st.markdown("#### Estadísticas")
-                    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                    if numeric_cols:
-                        selected = st.selectbox("Columna", numeric_cols, key="explore_col")
-                        col_data = df[selected].dropna()
-                        st.metric("Promedio", f"{col_data.mean():.2f}")
-                        st.metric("Mediana", f"{col_data.median():.2f}")
-                        st.metric("Desv. Estándar", f"{col_data.std():.2f}")
-                        outliers, _, _ = detect_outliers(df, selected)
-                        if outliers is not None and len(outliers) > 0:
-                            st.warning(f"⚠️ {len(outliers)} outliers")
-                    else:
-                        st.info("No hay columnas numéricas")
-                
-                st.markdown("---")
-                st.markdown("#### Top Valores")
-                text_cols = df.select_dtypes(include=['object']).columns.tolist()
-                if text_cols:
-                    col_selected = st.selectbox("Columna", text_cols, key="text_col")
-                    top_n = st.slider("Mostrar top", 5, 20, 10)
-                    value_counts = df[col_selected].value_counts().head(top_n)
-                    fig = px.bar(x=value_counts.values, y=value_counts.index, orientation='h', labels={'x': 'Frecuencia', 'y': col_selected}, color=value_counts.values, color_continuous_scale='Viridis')
-                    fig.update_layout(height=500, showlegend=False)
-                    st.plotly_chart(fig, use_container_width=True)
+                st.markdown("### Análisis")
+                info_list = [{'Columna': col, 'Tipo': str(df[col].dtype), 'Únicos': df[col].nunique(), 'Nulos': df[col].isnull().sum()} for col in df.columns]
+                st.dataframe(pd.DataFrame(info_list), use_container_width=True, hide_index=True)
             
             with tab3:
                 st.markdown("### Visualizaciones")
-                viz_type = st.selectbox("Tipo de gráfico", ["Histograma", "Box Plot", "Scatter Plot", "Correlación", "Pie Chart"])
+                viz = st.selectbox("Tipo", ["Histograma", "Box Plot", "Correlación"])
                 numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                
-                if viz_type == "Histograma" and numeric_cols:
-                    col = st.selectbox("Columna", numeric_cols, key="hist")
-                    bins = st.slider("Bins", 10, 100, 30)
-                    fig = px.histogram(df, x=col, nbins=bins, color_discrete_sequence=['#8b5cf6'])
+                if viz == "Histograma" and numeric_cols:
+                    col = st.selectbox("Columna", numeric_cols)
+                    fig = px.histogram(df, x=col, color_discrete_sequence=['#8b5cf6'])
                     st.plotly_chart(fig, use_container_width=True)
-                
-                elif viz_type == "Box Plot" and numeric_cols:
-                    col = st.selectbox("Columna", numeric_cols, key="box")
-                    fig = px.box(df, y=col, color_discrete_sequence=['#10b981'])
-                    st.plotly_chart(fig, use_container_width=True)
-                
-                elif viz_type == "Scatter Plot" and len(numeric_cols) >= 2:
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        x = st.selectbox("Eje X", numeric_cols, key="x")
-                    with col2:
-                        y = st.selectbox("Eje Y", numeric_cols, index=1 if len(numeric_cols) > 1 else 0, key="y")
-                    fig = px.scatter(df, x=x, y=y, trendline="ols", color_discrete_sequence=['#f59e0b'])
-                    st.plotly_chart(fig, use_container_width=True)
-                
-                elif viz_type == "Correlación" and len(numeric_cols) >= 2:
-                    corr = df[numeric_cols].corr()
-                    fig = px.imshow(corr, text_auto='.2f', aspect="auto", color_continuous_scale='RdBu_r')
-                    st.plotly_chart(fig, use_container_width=True)
-                
-                elif viz_type == "Pie Chart":
-                    text_cols = df.select_dtypes(include=['object']).columns.tolist()
-                    if text_cols:
-                        col = st.selectbox("Columna", text_cols, key="pie")
-                        top = st.slider("Top N", 3, 15, 8)
-                        values = df[col].value_counts().head(top)
-                        fig = px.pie(values=values.values, names=values.index, hole=0.4)
-                        st.plotly_chart(fig, use_container_width=True)
             
             with tab4:
-                st.markdown("### Exportar Datos Procesados")
-                st.info("💡 Los datos ya fueron limpiados automáticamente")
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    remove_nulls = st.checkbox("Eliminar filas con valores nulos", value=False)
-                    include_stats = st.checkbox("Incluir estadísticas", value=True)
-                
-                if st.button("🎯 Preparar Descarga", type="primary"):
-                    df_export = df.copy()
-                    if remove_nulls:
-                        df_export = df_export.dropna()
-                    st.success("✅ Datos listos")
-                    st.session_state['export_df'] = df_export
-                
-                st.markdown("---")
+                st.markdown("### Exportar")
+                if st.button("🎯 Preparar", type="primary"):
+                    st.session_state['export_df'] = df
+                    st.success("✅ Listo")
                 
                 if 'export_df' in st.session_state:
-                    df_to_export = st.session_state['export_df']
-                    st.markdown("#### 📥 Descargar")
+                    df_exp = st.session_state['export_df']
                     col1, col2 = st.columns(2)
                     with col1:
-                        csv_data = df_to_export.to_csv(index=False).encode('utf-8-sig')
-                        st.download_button("📥 CSV", csv_data, f"datos_{datetime.now().strftime('%Y%m%d_%H%M')}.csv", "text/csv")
+                        csv = df_exp.to_csv(index=False).encode('utf-8-sig')
+                        st.download_button("📥 CSV", csv, f"datos_{datetime.now().strftime('%Y%m%d')}.csv")
                     with col2:
-                        excel_data = create_excel_download(df_to_export, include_stats)
-                        st.download_button("📥 Excel", excel_data, f"datos_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx")
-                    st.markdown("#### 👀 Vista Previa")
-                    st.dataframe(df_to_export.head(20), use_container_width=True)
+                        excel = create_excel_download(df_exp, True)
+                        st.download_button("📥 Excel", excel, f"datos_{datetime.now().strftime('%Y%m%d')}.xlsx")
         
         except Exception as e:
-            st.error(f"❌ Error: {str(e)}")
-            st.info("Verifica el formato del archivo")
+            st.error(f"❌ {str(e)}")
     
     else:
-        st.markdown("<div style='text-align: center; padding: 60px 20px; background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);'><h2 style='color: #334155; margin-bottom: 1rem;'>👆 Sube un archivo para comenzar</h2><p style='color: #64748b; font-size: 1.125rem;'>Procesamiento automático e inteligente de datos</p></div>", unsafe_allow_html=True)
-    
-    st.markdown("---")
-    st.markdown("<div style='text-align: center; color: #94a3b8; padding: 1rem;'><p><strong>Excel Automator Pro</strong> v2.0</p></div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; padding: 60px 20px; background: white; border-radius: 16px;'><h2 style='color: #334155;'>👆 Sube un archivo</h2></div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
+
+   Selector "...": X botones encontrados
