@@ -1,11 +1,10 @@
 """
-AUTOMATIZADOR EXCEL PROFESIONAL - VERSIÓN PREMIUM
+AUTOMATIZADOR EXCEL PROFESIONAL
 """
 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 from io import BytesIO
 import numpy as np
 from datetime import datetime
@@ -18,7 +17,7 @@ st.set_page_config(
     page_title="Excel Automator Pro",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="collapsed"  # Sidebar cerrado al inicio
+    initial_sidebar_state="auto"  # AUTO = abierto en PC, cerrado en móvil
 )
 
 import auth
@@ -44,12 +43,19 @@ if not can_use:
     """)
     st.stop()
 
+# CSS SIMPLE - Solo colores y header oculto
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
-    * { font-family: 'Inter', sans-serif; }
-    .main { padding: 2rem; background-color: #f7fafc; }
+    * { 
+        font-family: 'Inter', sans-serif; 
+    }
+    
+    .main { 
+        padding: 2rem; 
+        background-color: #f7fafc; 
+    }
     
     h1 {
         color: #1a202c;
@@ -59,7 +65,7 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    /* SIDEBAR */
+    /* Sidebar oscuro */
     [data-testid="stSidebar"] {
         background-color: #2d3748 !important;
     }
@@ -72,7 +78,7 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* OCULTAR HEADER DE STREAMLIT */
+    /* Ocultar solo el header de deploy */
     [data-testid="stHeader"],
     [data-testid="stToolbar"],
     #MainMenu,
@@ -80,87 +86,7 @@ st.markdown("""
         display: none !important;
     }
     
-    /* ESTILIZAR EL BOTÓN NATIVO DEL SIDEBAR */
-    button[kind="header"],
-    button[data-testid="collapsedControl"],
-    section[data-testid="stSidebar"] > div:first-child > button {
-        position: fixed !important;
-        left: 0 !important;
-        top: 120px !important;
-        width: 50px !important;
-        height: 120px !important;
-        background: linear-gradient(135deg, #10b981, #14b8a6) !important;
-        border: none !important;
-        border-radius: 0 12px 12px 0 !important;
-        box-shadow: 2px 0 12px rgba(16, 185, 129, 0.5) !important;
-        z-index: 999999 !important;
-        padding: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    button[kind="header"]:hover,
-    button[data-testid="collapsedControl"]:hover {
-        width: 55px !important;
-        box-shadow: 3px 0 16px rgba(16, 185, 129, 0.7) !important;
-        transform: translateX(2px) !important;
-    }
-    
-    button[kind="header"] svg,
-    button[data-testid="collapsedControl"] svg {
-        width: 28px !important;
-        height: 28px !important;
-        stroke: white !important;
-        stroke-width: 3px !important;
-    }
-    
-    /* AGREGAR TEXTO "MENÚ" AL BOTÓN */
-    button[kind="header"]::after,
-    button[data-testid="collapsedControl"]::after {
-        content: "MENÚ" !important;
-        writing-mode: vertical-rl !important;
-        text-orientation: mixed !important;
-        color: white !important;
-        font-size: 10px !important;
-        font-weight: 700 !important;
-        letter-spacing: 1px !important;
-        margin-top: 8px !important;
-    }
-    
-    /* EN MÓVIL, POSICIÓN MÁS ARRIBA */
-    @media (max-width: 768px) {
-        button[kind="header"],
-        button[data-testid="collapsedControl"] {
-            top: 80px !important;
-            width: 45px !important;
-            height: 100px !important;
-        }
-        
-        button[kind="header"] svg,
-        button[data-testid="collapsedControl"] svg {
-            width: 24px !important;
-            height: 24px !important;
-        }
-    }
-    
-    /* OVERLAY OSCURO CUANDO SIDEBAR ABIERTO EN MÓVIL */
-    @media (max-width: 768px) {
-        [data-testid="stSidebar"][aria-expanded="true"]::before {
-            content: "" !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: rgba(0, 0, 0, 0.5) !important;
-            z-index: -1 !important;
-        }
-    }
-    
-    /* BOTONES */
+    /* Botones bonitos */
     .stButton>button {
         background: linear-gradient(135deg, #14b8a6, #10b981);
         color: white;
@@ -170,7 +96,7 @@ st.markdown("""
         padding: 0.75rem 1.5rem;
     }
     
-    /* TABS */
+    /* Tabs bonitos */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0.5rem;
         border-bottom: 2px solid #e2e8f0;
@@ -190,23 +116,6 @@ st.markdown("""
         font-weight: 600;
     }
 </style>
-
-<script>
-// Solo ocultar el header de Streamlit
-setInterval(function() {
-    var headers = document.querySelectorAll('[data-testid="stHeader"], [data-testid="stToolbar"]');
-    headers.forEach(function(h) { if (h) h.remove(); });
-}, 500);
-
-// Log para debug
-setTimeout(function() {
-    var btn = document.querySelector('button[kind="header"]');
-    console.log('Boton nativo del sidebar encontrado:', !!btn);
-    if (btn) {
-        console.log('El boton deberia estar visible y funcional');
-    }
-}, 2000);
-</script>
 """, unsafe_allow_html=True)
 
 def detect_outliers(df, column):
@@ -262,19 +171,24 @@ def main():
         ✅ Limpieza automática de datos
         ✅ Ordenamiento cronológico
         ✅ Eliminación de duplicados
+        ✅ Detección de outliers
         
         **📊 Análisis Inteligente:**
         ✅ Estadísticas descriptivas
         ✅ Correlaciones automáticas
+        ✅ Insights generados por IA
         
         **📈 Visualizaciones:**
-        ✅ Gráficos profesionales
+        ✅ Múltiples gráficos profesionales
+        ✅ Interactivos y exportables
         
-        **📥 Exportación:**
-        ✅ Excel y CSV optimizados
+        **📥 Exportación Premium:**
+        ✅ Excel formateado
+        ✅ CSV optimizado
+        ✅ Reportes con estadísticas
         """)
         st.markdown("---")
-        st.success("💡 Todo automático")
+        st.success("💡 Todo automático e inteligente")
     
     uploaded_file = st.file_uploader("Arrastra tu archivo Excel o CSV aquí", type=['xlsx', 'xls', 'csv'])
     
