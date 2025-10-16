@@ -18,7 +18,7 @@ st.set_page_config(
     page_title="Excel Automator Pro",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed"  # Sidebar cerrado al inicio
 )
 
 import auth
@@ -59,6 +59,7 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
+    /* SIDEBAR */
     [data-testid="stSidebar"] {
         background-color: #2d3748 !important;
     }
@@ -71,6 +72,7 @@ st.markdown("""
         color: #ffffff !important;
     }
     
+    /* OCULTAR HEADER DE STREAMLIT */
     [data-testid="stHeader"],
     [data-testid="stToolbar"],
     #MainMenu,
@@ -78,82 +80,87 @@ st.markdown("""
         display: none !important;
     }
     
-    #sidebar-tab {
-        position: fixed;
-        left: 0;
-        top: 120px;
-        width: 50px;
-        height: 120px;
-        background: linear-gradient(135deg, #10b981, #14b8a6);
-        border-radius: 0 12px 12px 0;
-        box-shadow: 2px 0 12px rgba(16, 185, 129, 0.4);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 999999;
-        transition: all 0.3s ease;
-        gap: 8px;
+    /* ESTILIZAR EL BOTÓN NATIVO DEL SIDEBAR */
+    button[kind="header"],
+    button[data-testid="collapsedControl"],
+    section[data-testid="stSidebar"] > div:first-child > button {
+        position: fixed !important;
+        left: 0 !important;
+        top: 120px !important;
+        width: 50px !important;
+        height: 120px !important;
+        background: linear-gradient(135deg, #10b981, #14b8a6) !important;
+        border: none !important;
+        border-radius: 0 12px 12px 0 !important;
+        box-shadow: 2px 0 12px rgba(16, 185, 129, 0.5) !important;
+        z-index: 999999 !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
     }
     
-    #sidebar-tab:hover {
-        width: 55px;
-        box-shadow: 3px 0 16px rgba(16, 185, 129, 0.6);
-        transform: translateX(2px);
+    button[kind="header"]:hover,
+    button[data-testid="collapsedControl"]:hover {
+        width: 55px !important;
+        box-shadow: 3px 0 16px rgba(16, 185, 129, 0.7) !important;
+        transform: translateX(2px) !important;
     }
     
-    #sidebar-tab:active {
-        transform: translateX(4px);
-        box-shadow: 4px 0 20px rgba(16, 185, 129, 0.8);
+    button[kind="header"] svg,
+    button[data-testid="collapsedControl"] svg {
+        width: 28px !important;
+        height: 28px !important;
+        stroke: white !important;
+        stroke-width: 3px !important;
     }
     
-    #sidebar-tab svg {
-        width: 24px;
-        height: 24px;
-        transition: transform 0.3s ease;
+    /* AGREGAR TEXTO "MENÚ" AL BOTÓN */
+    button[kind="header"]::after,
+    button[data-testid="collapsedControl"]::after {
+        content: "MENÚ" !important;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        color: white !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+        margin-top: 8px !important;
     }
     
-    #sidebar-tab:hover svg {
-        transform: translateX(3px);
-    }
-    
-    #sidebar-tab .tab-text {
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-        color: white;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
-    
-    #sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999998;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    
-    #sidebar-overlay.active {
-        display: block;
-        opacity: 1;
-    }
-    
+    /* EN MÓVIL, POSICIÓN MÁS ARRIBA */
     @media (max-width: 768px) {
-        #sidebar-tab {
-            top: 80px;
-            width: 45px;
-            height: 100px;
+        button[kind="header"],
+        button[data-testid="collapsedControl"] {
+            top: 80px !important;
+            width: 45px !important;
+            height: 100px !important;
+        }
+        
+        button[kind="header"] svg,
+        button[data-testid="collapsedControl"] svg {
+            width: 24px !important;
+            height: 24px !important;
         }
     }
     
+    /* OVERLAY OSCURO CUANDO SIDEBAR ABIERTO EN MÓVIL */
+    @media (max-width: 768px) {
+        [data-testid="stSidebar"][aria-expanded="true"]::before {
+            content: "" !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(0, 0, 0, 0.5) !important;
+            z-index: -1 !important;
+        }
+    }
+    
+    /* BOTONES */
     .stButton>button {
         background: linear-gradient(135deg, #14b8a6, #10b981);
         color: white;
@@ -163,6 +170,7 @@ st.markdown("""
         padding: 0.75rem 1.5rem;
     }
     
+    /* TABS */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0.5rem;
         border-bottom: 2px solid #e2e8f0;
@@ -183,147 +191,21 @@ st.markdown("""
     }
 </style>
 
-<div id="sidebar-overlay"></div>
-
-<div id="sidebar-tab">
-    <svg viewBox="0 0 24 24" fill="none">
-        <path d="M9 5l7 7-7 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span class="tab-text">Menú</span>
-</div>
-
 <script>
-(function() {
-    console.log('Inicializando control del sidebar');
-    
-    var clickCount = 0;
-    
-    function toggleSidebar() {
-        clickCount++;
-        console.log('Click numero ' + clickCount + ' en pestana');
-        
-        var buttonSelectors = [
-            'button[kind="header"]',
-            'button[data-testid="collapsedControl"]',
-            'section[data-testid="stSidebar"] button',
-            'button[aria-label*="sidebar"]'
-        ];
-        
-        var buttonFound = false;
-        
-        for (var i = 0; i < buttonSelectors.length; i++) {
-            var buttons = document.querySelectorAll(buttonSelectors[i]);
-            console.log('Selector ' + i + ': ' + buttons.length + ' botones');
-            
-            if (buttons.length > 0) {
-                for (var j = 0; j < buttons.length; j++) {
-                    var btn = buttons[j];
-                    var isHeaderButton = btn.closest('[data-testid="stHeader"]') || 
-                                        btn.closest('[data-testid="stToolbar"]');
-                    
-                    if (!isHeaderButton) {
-                        console.log('Boton del sidebar encontrado');
-                        btn.click();
-                        buttonFound = true;
-                        
-                        setTimeout(function() {
-                            if (window.innerWidth <= 768) {
-                                var overlay = document.getElementById('sidebar-overlay');
-                                if (overlay) {
-                                    overlay.classList.add('active');
-                                }
-                            }
-                        }, 100);
-                        
-                        return;
-                    }
-                }
-            }
-        }
-        
-        if (!buttonFound) {
-            console.error('No se encontro boton del sidebar');
-            var sidebar = document.querySelector('section[data-testid="stSidebar"]');
-            if (sidebar) {
-                console.log('Sidebar encontrado, cambiando atributos');
-                var isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
-                
-                if (isCollapsed) {
-                    sidebar.setAttribute('aria-expanded', 'true');
-                    sidebar.style.marginLeft = '0';
-                    sidebar.style.transform = 'translateX(0)';
-                } else {
-                    sidebar.setAttribute('aria-expanded', 'false');
-                    sidebar.style.marginLeft = '-21rem';
-                    sidebar.style.transform = 'translateX(-100%)';
-                }
-                
-                buttonFound = true;
-            }
-        }
-        
-        if (!buttonFound) {
-            alert('No se puede abrir el menu. Recarga la pagina (F5).');
-        }
+// Solo ocultar el header de Streamlit
+setInterval(function() {
+    var headers = document.querySelectorAll('[data-testid="stHeader"], [data-testid="stToolbar"]');
+    headers.forEach(function(h) { if (h) h.remove(); });
+}, 500);
+
+// Log para debug
+setTimeout(function() {
+    var btn = document.querySelector('button[kind="header"]');
+    console.log('Boton nativo del sidebar encontrado:', !!btn);
+    if (btn) {
+        console.log('El boton deberia estar visible y funcional');
     }
-    
-    function closeSidebar() {
-        console.log('Cerrando sidebar');
-        var sidebar = document.querySelector('section[data-testid="stSidebar"]');
-        if (sidebar) {
-            sidebar.setAttribute('aria-expanded', 'false');
-        }
-        
-        var overlay = document.getElementById('sidebar-overlay');
-        if (overlay) {
-            overlay.classList.remove('active');
-        }
-        
-        var closeButton = document.querySelector('button[kind="header"]');
-        if (closeButton) {
-            closeButton.click();
-        }
-    }
-    
-    var tab = document.getElementById('sidebar-tab');
-    if (tab) {
-        console.log('Pestana encontrada');
-        
-        tab.addEventListener('click', toggleSidebar);
-        
-        tab.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            toggleSidebar();
-        }, {passive: false});
-        
-        console.log('Eventos agregados');
-    }
-    
-    var overlay = document.getElementById('sidebar-overlay');
-    if (overlay) {
-        overlay.addEventListener('click', closeSidebar);
-        overlay.addEventListener('touchstart', closeSidebar);
-    }
-    
-    setInterval(function() {
-        var headers = document.querySelectorAll('[data-testid="stHeader"], [data-testid="stToolbar"]');
-        headers.forEach(function(h) { if (h) h.remove(); });
-    }, 500);
-    
-    setTimeout(function() {
-        console.log('TEST despues de 2 segundos');
-        var sidebar = document.querySelector('section[data-testid="stSidebar"]');
-        console.log('Sidebar en DOM: ' + !!sidebar);
-        
-        var nativeButton = document.querySelector('button[kind="header"]');
-        console.log('Boton nativo: ' + !!nativeButton);
-        
-        var tab = document.getElementById('sidebar-tab');
-        console.log('Pestana en DOM: ' + !!tab);
-    }, 2000);
-    
-    console.log('Sistema inicializado');
-})();
+}, 2000);
 </script>
 """, unsafe_allow_html=True)
 
