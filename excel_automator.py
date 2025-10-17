@@ -112,6 +112,15 @@ st.markdown("""
             display: none;
         }
     }
+    
+    /* Estilo para info de usuario */
+    .user-info-box {
+        background: linear-gradient(135deg, #374151, #1f2937);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        border: 2px solid #10b981;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -160,6 +169,30 @@ def create_excel_download(df, include_stats=False):
     return output.getvalue()
 
 # SIDEBAR PARA PC
+st.sidebar.markdown('<div class="user-info-box">', unsafe_allow_html=True)
+st.sidebar.markdown(f"### 👤 {st.session_state.get('user_email', 'Usuario')}")
+
+# Estado de cuenta
+if st.session_state.get('user_tier', 'free') == 'premium':
+    st.sidebar.success("⭐ **CUENTA PREMIUM**")
+else:
+    st.sidebar.info("🆓 **CUENTA FREE**")
+    # Mostrar usos restantes
+    daily_uses = st.session_state.get('daily_uses', 0)
+    st.sidebar.markdown(f"**Análisis hoy:** {daily_uses}/3")
+    if daily_uses >= 2:
+        st.sidebar.warning("⚠️ Cerca del límite diario")
+
+st.sidebar.markdown('</div>', unsafe_allow_html=True)
+
+# Botón Mi Cuenta
+if st.sidebar.button("⚙️ Mi Cuenta", use_container_width=True):
+    st.session_state.show_account_page = True
+    st.rerun()
+
+st.sidebar.markdown("---")
+
+# Info de la app
 st.sidebar.markdown("### ⚡ Procesamiento Automático")
 st.sidebar.markdown("""
 **🤖 Al cargar tu archivo:**
@@ -189,9 +222,30 @@ st.sidebar.success("💡 Todo automático e inteligente")
 def main():
     st.markdown("<div style='text-align: center; margin-bottom: 2rem;'><h1>📊 Excel Automator Pro</h1><p style='color: #64748b; font-size: 1.125rem;'>Analiza y procesa tus datos en segundos</p></div>", unsafe_allow_html=True)
     
-    # MENÚ ALTERNATIVO PARA MÓVIL (solo se ve en pantallas pequeñas)
+    # MENÚ ALTERNATIVO PARA MÓVIL
     st.markdown('<div class="mobile-menu-container">', unsafe_allow_html=True)
-    with st.expander("📋 **INFORMACIÓN Y FUNCIONES**", expanded=False):
+    with st.expander("👤 **MI CUENTA E INFORMACIÓN**", expanded=False):
+        # Info del usuario
+        st.markdown(f"### 👤 {st.session_state.get('user_email', 'Usuario')}")
+        
+        if st.session_state.get('user_tier', 'free') == 'premium':
+            st.success("⭐ **CUENTA PREMIUM** - Análisis ilimitados")
+        else:
+            st.info("🆓 **CUENTA FREE**")
+            daily_uses = st.session_state.get('daily_uses', 0)
+            st.markdown(f"**Análisis realizados hoy:** {daily_uses}/3")
+            if daily_uses >= 2:
+                st.warning("⚠️ Cerca del límite diario")
+            st.markdown("[💎 Actualizar a Premium](https://smartappslab.gumroad.com/l/owmzol)")
+        
+        # Botón Mi Cuenta
+        if st.button("⚙️ Ir a Mi Cuenta", key="mobile_account", use_container_width=True):
+            st.session_state.show_account_page = True
+            st.rerun()
+        
+        st.markdown("---")
+        
+        # Info de funciones
         st.markdown("""
         ### ⚡ Procesamiento Automático
         
