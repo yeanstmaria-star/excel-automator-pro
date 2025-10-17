@@ -8,16 +8,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.markdown("""
-<style>
-    [data-testid="stSidebar"] {
-        background-color: #2d3748;
-    }
-</style>
-""", unsafe_allow_html=True)
+def main():
+    st.sidebar.title("TEST SIDEBAR EN MAIN")
+    st.sidebar.write("¿Ves esto?")
+    
+    st.title("TEST PRINCIPAL")
+    st.write("Sidebar dentro de función main()")
 
-st.sidebar.title("TEST SIDEBAR CON CSS")
-st.sidebar.write("¿Ves esto?")
-
-st.title("TEST PRINCIPAL")
-st.write("¿El sidebar está oscuro?")
+if __name__ == "__main__":
+    main()
