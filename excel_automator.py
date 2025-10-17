@@ -195,3 +195,77 @@ def main():
                     elif viz_type == "Box Plot":
                         col = st.selectbox("Columna", numeric_cols)
                         fig = px.box
+                        col = st.selectbox("Columna", numeric_cols)
+                        fig = px.box(df, y=col, color_discrete_sequence=['#10b981'])
+                        st.plotly_chart(fig, use_container_width=True)
+                    
+                    elif viz_type == "Correlación" and len(numeric_cols) >= 2:
+                        corr = df[numeric_cols].corr()
+                        fig = px.imshow(corr, text_auto='.2f', aspect="auto", color_continuous_scale='RdBu_r')
+                        st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("No hay columnas numéricas para visualizar")
+            
+            with tab4:
+                st.markdown("### Exportar Datos Procesados")
+                st.info("💡 Los datos ya fueron limpiados automáticamente")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    remove_nulls = st.checkbox("Eliminar filas con valores nulos", value=False)
+                    include_stats = st.checkbox("Incluir estadísticas", value=True)
+                
+                if st.button("🎯 Preparar Descarga", type="primary"):
+                    df_export = df.copy()
+                    if remove_nulls:
+                        df_export = df_export.dropna()
+                    st.success("✅ Datos listos para exportar")
+                    st.session_state['export_df'] = df_export
+                
+                st.markdown("---")
+                
+                if 'export_df' in st.session_state:
+                    df_to_export = st.session_state['export_df']
+                    
+                    st.markdown("#### 📥 Descargar")
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        csv_data = df_to_export.to_csv(index=False).encode('utf-8-sig')
+                        st.download_button(
+                            "📥 Descargar CSV",
+                            data=csv_data,
+                            file_name=f"datos_limpios_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+                            mime="text/csv"
+                        )
+                    
+                    with col2:
+                        excel_data = create_excel_download(df_to_export, include_stats)
+                        st.download_button(
+                            "📥 Descargar Excel",
+                            data=excel_data,
+                            file_name=f"datos_limpios_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                    
+                    st.markdown("#### 👀 Vista Previa")
+                    st.dataframe(df_to_export.head(20), use_container_width=True)
+        
+        except Exception as e:
+            st.error(f"❌ Error: {str(e)}")
+            st.info("Verifica que el archivo esté en formato correcto")
+    
+    else:
+        st.markdown("""
+            <div style='text-align: center; padding: 60px 20px; background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);'>
+                <h2 style='color: #334155; margin-bottom: 1rem;'>👆 Sube un archivo para comenzar</h2>
+                <p style='color: #64748b; font-size: 1.125rem;'>Procesamiento automático e inteligente de datos</p>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.markdown("<div style='text-align: center; color: #94a3b8;'><p><strong>Excel Automator Pro</strong> v2.0</p></div>", unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
