@@ -26,25 +26,33 @@ st.sidebar.markdown("""
 **🤖 Al cargar tu archivo:**
 
 ✅ Limpieza automática de datos
+
 ✅ Ordenamiento cronológico
+
 ✅ Eliminación de duplicados
+
 ✅ Detección de outliers
 
 **📊 Análisis Inteligente:**
 
 ✅ Estadísticas descriptivas
+
 ✅ Correlaciones automáticas
+
 ✅ Insights generados por IA
 
 **📈 Visualizaciones:**
 
 ✅ Múltiples gráficos profesionales
+
 ✅ Interactivos y exportables
 
 **📥 Exportación Premium:**
 
 ✅ Excel formateado
+
 ✅ CSV optimizado
+
 ✅ Reportes con estadísticas
 """)
 st.sidebar.markdown("---")
@@ -390,3 +398,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
