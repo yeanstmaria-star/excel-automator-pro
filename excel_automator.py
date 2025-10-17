@@ -1,9 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-from io import BytesIO
-import numpy as np
-from datetime import datetime
 
 st.set_page_config(
     page_title="Excel Automator Pro",
@@ -12,8 +8,16 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.sidebar.title("TEST SIDEBAR")
+st.markdown("""
+<style>
+    [data-testid="stSidebar"] {
+        background-color: #2d3748;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.sidebar.title("TEST SIDEBAR CON CSS")
 st.sidebar.write("¿Ves esto?")
 
 st.title("TEST PRINCIPAL")
-st.write("Si ves el sidebar a la izquierda, los imports NO son el problema")
+st.write("¿El sidebar está oscuro?")
