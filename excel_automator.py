@@ -17,46 +17,8 @@ st.set_page_config(
     page_title="Excel Automator Pro",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="auto"  # AUTO = PC abierto, móvil cerrado (con botón)
+    initial_sidebar_state="auto"
 )
-
-# SIDEBAR PRIMERO
-st.sidebar.markdown("### ⚡ Procesamiento Automático")
-st.sidebar.markdown("""
-**🤖 Al cargar tu archivo:**
-
-✅ Limpieza automática de datos
-
-✅ Ordenamiento cronológico
-
-✅ Eliminación de duplicados
-
-✅ Detección de outliers
-
-**📊 Análisis Inteligente:**
-
-✅ Estadísticas descriptivas
-
-✅ Correlaciones automáticas
-
-✅ Insights generados por IA
-
-**📈 Visualizaciones:**
-
-✅ Múltiples gráficos profesionales
-
-✅ Interactivos y exportables
-
-**📥 Exportación Premium:**
-
-✅ Excel formateado
-
-✅ CSV optimizado
-
-✅ Reportes con estadísticas
-""")
-st.sidebar.markdown("---")
-st.sidebar.success("💡 Todo automático e inteligente")
 
 # AUTH
 import auth
@@ -82,7 +44,7 @@ if not can_use:
     """)
     st.stop()
 
-# CSS CON BOTÓN MÓVIL MÁS VISIBLE
+# CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -98,7 +60,6 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    /* Sidebar oscuro */
     [data-testid="stSidebar"] {
         background-color: #2d3748;
     }
@@ -111,69 +72,12 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* Ocultar header */
     [data-testid="stHeader"],
     #MainMenu,
     footer {
         display: none !important;
     }
     
-    /* BOTÓN DEL SIDEBAR - MUY VISIBLE EN MÓVIL */
-    button[kind="header"],
-    button[data-testid="collapsedControl"] {
-        background: linear-gradient(135deg, #10b981, #14b8a6) !important;
-        color: white !important;
-        border: 3px solid white !important;
-        border-radius: 8px !important;
-        padding: 8px !important;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5) !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    button[kind="header"]:hover,
-    button[data-testid="collapsedControl"]:hover {
-        transform: scale(1.05) !important;
-        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.7) !important;
-    }
-    
-    button[kind="header"] svg,
-    button[data-testid="collapsedControl"] svg {
-        stroke: white !important;
-        stroke-width: 3px !important;
-        width: 24px !important;
-        height: 24px !important;
-    }
-    
-    /* En móvil, hacer el botón MÁS grande y visible */
-    @media (max-width: 768px) {
-        button[kind="header"],
-        button[data-testid="collapsedControl"] {
-            width: 50px !important;
-            height: 50px !important;
-            position: fixed !important;
-            top: 12px !important;
-            left: 12px !important;
-            z-index: 999999 !important;
-            animation: mobilePulse 2s infinite !important;
-        }
-        
-        @keyframes mobilePulse {
-            0%, 100% {
-                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
-            }
-            50% {
-                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.9);
-            }
-        }
-        
-        button[kind="header"] svg,
-        button[data-testid="collapsedControl"] svg {
-            width: 28px !important;
-            height: 28px !important;
-        }
-    }
-    
-    /* Botones normales */
     .stButton>button {
         background: linear-gradient(135deg, #14b8a6, #10b981);
         color: white;
@@ -183,7 +87,6 @@ st.markdown("""
         padding: 0.75rem 1.5rem;
     }
     
-    /* Tabs */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0.5rem;
         border-bottom: 2px solid #e2e8f0;
@@ -201,6 +104,13 @@ st.markdown("""
         color: #14b8a6;
         border-bottom: 3px solid #14b8a6;
         font-weight: 600;
+    }
+    
+    /* Ocultar expander en desktop */
+    @media (min-width: 769px) {
+        .mobile-menu-container {
+            display: none;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -249,9 +159,65 @@ def create_excel_download(df, include_stats=False):
                 numeric_df.describe().to_excel(writer, sheet_name='Estadísticas')
     return output.getvalue()
 
+# SIDEBAR PARA PC
+st.sidebar.markdown("### ⚡ Procesamiento Automático")
+st.sidebar.markdown("""
+**🤖 Al cargar tu archivo:**
+✅ Limpieza automática de datos
+✅ Ordenamiento cronológico
+✅ Eliminación de duplicados
+✅ Detección de outliers
+
+**📊 Análisis Inteligente:**
+✅ Estadísticas descriptivas
+✅ Correlaciones automáticas
+✅ Insights generados por IA
+
+**📈 Visualizaciones:**
+✅ Múltiples gráficos profesionales
+✅ Interactivos y exportables
+
+**📥 Exportación Premium:**
+✅ Excel formateado
+✅ CSV optimizado
+✅ Reportes con estadísticas
+""")
+st.sidebar.markdown("---")
+st.sidebar.success("💡 Todo automático e inteligente")
+
 # MAIN
 def main():
-    st.markdown("<div style='text-align: center; margin-bottom: 3rem;'><h1>📊 Excel Automator Pro</h1><p style='color: #64748b; font-size: 1.125rem;'>Analiza y procesa tus datos en segundos</p></div>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align: center; margin-bottom: 2rem;'><h1>📊 Excel Automator Pro</h1><p style='color: #64748b; font-size: 1.125rem;'>Analiza y procesa tus datos en segundos</p></div>", unsafe_allow_html=True)
+    
+    # MENÚ ALTERNATIVO PARA MÓVIL (solo se ve en pantallas pequeñas)
+    st.markdown('<div class="mobile-menu-container">', unsafe_allow_html=True)
+    with st.expander("📋 **INFORMACIÓN Y FUNCIONES**", expanded=False):
+        st.markdown("""
+        ### ⚡ Procesamiento Automático
+        
+        **🤖 Al cargar tu archivo:**
+        - ✅ Limpieza automática de datos
+        - ✅ Ordenamiento cronológico
+        - ✅ Eliminación de duplicados
+        - ✅ Detección de outliers
+        
+        **📊 Análisis Inteligente:**
+        - ✅ Estadísticas descriptivas
+        - ✅ Correlaciones automáticas
+        - ✅ Insights generados por IA
+        
+        **📈 Visualizaciones:**
+        - ✅ Múltiples gráficos profesionales
+        - ✅ Interactivos y exportables
+        
+        **📥 Exportación Premium:**
+        - ✅ Excel formateado
+        - ✅ CSV optimizado
+        - ✅ Reportes con estadísticas
+        
+        💡 **Todo el procesamiento es automático e inteligente**
+        """)
+    st.markdown('</div>', unsafe_allow_html=True)
     
     uploaded_file = st.file_uploader("Arrastra tu archivo Excel o CSV aquí", type=['xlsx', 'xls', 'csv'])
     
@@ -398,4 +364,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
